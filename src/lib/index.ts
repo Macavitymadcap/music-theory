@@ -48,3 +48,10 @@ export {
   playChordProgression,
   chainNodes,
 } from "./web-audio";
+
+export {
+  PROGRESSION_PRESETS,
+  DEGREE_OPTIONS,
+  resolveProgression,
+  type ProgressionStep,
+} from "./progressions";

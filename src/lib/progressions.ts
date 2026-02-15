@@ -6,7 +6,7 @@
  * semitone offsets from the tonic so they're key-agnostic.
  */
 
-import { CHORD_INTERVALS, CHORD_DISPLAY_NAMES, CHORD_GROUPS, type ChordType, type ChordGroup } from "./lib";
+import { CHORD_INTERVALS, CHORD_DISPLAY_NAMES, CHORD_GROUPS, type ChordType, type ChordGroup } from ".";
 
 // ── Types ──
 

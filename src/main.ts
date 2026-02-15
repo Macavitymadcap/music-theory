@@ -22,14 +22,12 @@ import {
   scheduleChord,
   scheduleNote,
   createNote,
+  DEGREE_OPTIONS,
+  PROGRESSION_PRESETS,
+  ProgressionStep,
+  resolveProgression,
 } from "./lib";
 import { createPianoKeyboard } from "./piano";
-import {
-  PROGRESSION_PRESETS,
-  DEGREE_OPTIONS,
-  resolveProgression,
-  type ProgressionStep,
-} from "./progressions";
 
 // ── Audio context ──
 
@@ -80,11 +78,11 @@ function noteOptions(): { value: string; label: string }[] {
 
 const DURATIONS_MAP: { label: string; value: Duration }[] = [
   { label: "1/16", value: DURATIONS.SEMIQUAVER },
-  { label: "1/8", value: 0.125 },
-  { label: "1/4", value: 0.25 },
-  { label: "1/2", value: 0.5 },
-  { label: "1", value: 1.0 },
-  { label: "2", value: 2.0 },
+  { label: "1/8", value: DURATIONS.QUAVER },
+  { label: "1/4", value: DURATIONS.CROTCHET },
+  { label: "1/2", value: DURATIONS.MINIM },
+  { label: "1", value: DURATIONS.SEMIBREVE },
+  { label: "2", value: DURATIONS.BREVE },
 ];
 
 // ── Custom progression state ──
