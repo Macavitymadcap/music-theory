@@ -13,6 +13,7 @@ import {
   type Chord,
   type Duration,
   type WaveformType,
+  type ProgressionStep,
   getFrequencyFromName,
   getFrequencyFromTonicAndInterval,
   createScale,
@@ -24,7 +25,6 @@ import {
   createNote,
   DEGREE_OPTIONS,
   PROGRESSION_PRESETS,
-  ProgressionStep,
   resolveProgression,
 } from "./lib";
 import { createPianoKeyboard } from "./piano";
