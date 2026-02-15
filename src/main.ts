@@ -6,9 +6,13 @@ import {
   CHORD_INTERVALS,
   CHORD_GROUPS,
   CHORD_DISPLAY_NAMES,
+  DURATIONS, 
+  TIME_SIGNATURES,
   type ScaleName,
   type ChordType,
   type Chord,
+  type Duration,
+  type WaveformType,
   getFrequencyFromName,
   getFrequencyFromTonicAndInterval,
   createScale,
@@ -19,11 +23,9 @@ import {
   scheduleNote,
   createNote,
 } from "./lib";
-import type { WaveformType } from "./lib";
 import { createPianoKeyboard } from "./piano";
 import {
   PROGRESSION_PRESETS,
-  BUILDER_CHORD_OPTIONS,
   DEGREE_OPTIONS,
   resolveProgression,
   type ProgressionStep,
@@ -76,8 +78,8 @@ function noteOptions(): { value: string; label: string }[] {
   return opts;
 }
 
-const DURATIONS: { label: string; value: number }[] = [
-  { label: "1/16", value: 0.0625 },
+const DURATIONS_MAP: { label: string; value: Duration }[] = [
+  { label: "1/16", value: DURATIONS.SEMIQUAVER },
   { label: "1/8", value: 0.125 },
   { label: "1/4", value: 0.25 },
   { label: "1/2", value: 0.5 },
@@ -107,7 +109,7 @@ function buildGroupedSelect(id: string, groups: { label: string; options: { valu
 function render(): string {
   const noteOpts = noteOptions();
   const waveOpts = WAVEFORMS.map((w) => ({ value: w, label: w }));
-  const durOpts = DURATIONS.map((d) => ({ value: String(d.value), label: d.label }));
+  const durOpts = DURATIONS_MAP.map((d) => ({ value: String(d.value), label: d.label }));
   const presetOpts = PROGRESSION_PRESETS.map((p, i) => ({ value: String(i), label: p.name }));
   const keyOpts = [...NOTE_NAMES].map((k) => ({ value: k, label: keyDisplayLabel(k) }));
   const degreeOpts = DEGREE_OPTIONS.map((d) => ({ value: String(d.semitones), label: d.label }));
@@ -545,7 +547,7 @@ function handlePlay() {
       }
 
       const resolved = resolveProgression(steps, tonic);
-      const beatsPerBar = 4;
+      const beatsPerBar = TIME_SIGNATURES.FOUR_FOUR;
       const globalHits = parseInt(progHitsGlobalInput.value, 10) || 1;
       const isPreset = getProgSource() === "preset";
 
@@ -558,7 +560,7 @@ function handlePlay() {
         for (const step of resolved) {
           const hitsPerBar = isPreset ? globalHits : step.hitsPerBar;
           const hitBeats = beatsPerBar / hitsPerBar;
-          const hitNoteValue = hitBeats / beatsPerBar;
+          const hitNoteValue = hitBeats / beatsPerBar as Duration;
 
           for (let bar = 0; bar < step.bars; bar++) {
             for (let hit = 0; hit < hitsPerBar; hit++) {
@@ -588,9 +590,9 @@ function handlePlay() {
       const pitchName = pitchSelect.value;
       const pitchLabel = noteDisplayLabel(pitchName);
       const waveform = waveformSelect.value as WaveformType;
-      const noteValue = parseFloat(durationSelect.value);
+      const noteValue = parseFloat(durationSelect.value) as Duration;
       const tonic = getFrequencyFromName(pitchName);
-      const options = { context: audioCtx, waveform, bpm, gain: 0.35, timeSignature: 4 };
+      const options = { context: audioCtx, waveform, bpm, gain: 0.35, timeSignature: TIME_SIGNATURES.FOUR_FOUR };
 
       switch (mode) {
         case "note": {

@@ -3,7 +3,7 @@ import {
   getFrequencyFromTonicAndInterval,
   getFrequencyFromName,
 } from "./notes";
-import { CROTCHET } from "./duration";
+import { Duration, DURATIONS } from "./duration";
 
 export interface Scale {
   name: string;
@@ -113,10 +113,10 @@ export const SCALE_GROUPS: ScaleGroup[] = [
 ];
 
 /** Create Notes for a scale from tonic frequency */
-export function createScaleNotes(tonic: number, scale: Scale, noteValue: number = CROTCHET): Note[] {
+export function createScaleNotes(tonic: number, scale: Scale, duration: Duration = DURATIONS.CROTCHET): Note[] {
   return scale.intervals.map((interval) => ({
     frequency: getFrequencyFromTonicAndInterval(tonic, interval),
-    value: noteValue,
+    value: duration,
   }));
 }
 

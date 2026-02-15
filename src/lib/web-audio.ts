@@ -1,5 +1,6 @@
 import type { Note } from "./notes";
 import type { Chord } from "./chords";
+import { TIME_SIGNATURES, type TimeSignature } from "./duration";
 
 export type WaveformType = "sine" | "sawtooth" | "square" | "triangle";
 
@@ -15,14 +16,14 @@ interface PlayOptions {
   /** Master gain 0-1 (default: 0.3) */
   gain?: number;
   /** Time signature - beats per measure (default: 4) */
-  timeSignature?: number;
+  timeSignature?: TimeSignature;
 }
 
 /**
- * Convert a note's `value` (fraction of a whole note) to seconds at a given BPM.
+ * Convert a note's duration (fraction of a whole note) to seconds at a given BPM.
  * In 4/4 time, a whole note = 4 beats. At 120 BPM, one beat = 0.5s.
  */
-function noteValueToSeconds(value: number, bpm: number, timeSignature: number): number {
+function durationToSeconds(value: number, bpm: number, timeSignature: number): number {
   const secondsPerBeat = 60 / bpm;
   const beatsForNote = value * timeSignature;
   return beatsForNote * secondsPerBeat;
@@ -67,7 +68,7 @@ export function scheduleNote(
     timeSignature = 4,
   } = options;
 
-  const duration = noteValueToSeconds(note.value, bpm, timeSignature);
+  const duration = durationToSeconds(note.value, bpm, timeSignature);
 
   const oscillator = context.createOscillator();
   oscillator.type = waveform;
@@ -117,7 +118,7 @@ export function playScale(notes: Note[], options: PlayOptions): number {
 
   for (const note of notes) {
     scheduleNote(note, currentTime, options);
-    currentTime += noteValueToSeconds(note.value, bpm, timeSignature);
+    currentTime += durationToSeconds(note.value, bpm, timeSignature);
   }
 
   return currentTime - options.context.currentTime;
@@ -133,7 +134,7 @@ export function playChord(chord: Chord, options: PlayOptions): number {
   scheduleChord(chord, startTime, options);
 
   // Duration is determined by the first note's value
-  return noteValueToSeconds(chord.notes[0].value, bpm, timeSignature);
+  return durationToSeconds(chord.notes[0].value, bpm, timeSignature);
 }
 
 /**
@@ -144,12 +145,12 @@ export function playChordProgression(
   chords: Chord[],
   options: PlayOptions
 ): number {
-  const { bpm = 120, timeSignature = 4 } = options;
+  const { bpm = 120, timeSignature = TIME_SIGNATURES.FOUR_FOUR } = options;
   let currentTime = options.context.currentTime;
 
   for (const chord of chords) {
     scheduleChord(chord, currentTime, options);
-    const duration = noteValueToSeconds(chord.notes[0].value, bpm, timeSignature);
+    const duration = durationToSeconds(chord.notes[0].value, bpm, timeSignature);
     currentTime += duration;
   }
 

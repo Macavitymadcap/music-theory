@@ -10,17 +10,10 @@ export {
 } from "./notes";
 
 export {
-  BREVE,
-  SEMIBREVE,
-  MINIM,
-  CROTCHET,
-  QUAVER,
-  SEMIQUAVER,
-  DEMISEMIQUAVER,
-  HEMIDEMISEMIQUAVER,
-  QUASIHEMIDEMISEMIQUAVER,
-  FOUR_FOUR,
-  THREE_FOUR,
+  type Duration,
+  type TimeSignature,
+  DURATIONS,
+  TIME_SIGNATURES
 } from "./duration";
 
 export {
