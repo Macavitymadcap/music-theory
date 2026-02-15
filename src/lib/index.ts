@@ -10,17 +10,10 @@ export {
 } from "./notes";
 
 export {
-  BREVE,
-  SEMIBREVE,
-  MINIM,
-  CROTCHET,
-  QUAVER,
-  SEMIQUAVER,
-  DEMISEMIQUAVER,
-  HEMIDEMISEMIQUAVER,
-  QUASIHEMIDEMISEMIQUAVER,
-  FOUR_FOUR,
-  THREE_FOUR,
+  type Duration,
+  type TimeSignature,
+  DURATIONS,
+  TIME_SIGNATURES
 } from "./duration";
 
 export {
@@ -55,3 +48,10 @@ export {
   playChordProgression,
   chainNodes,
 } from "./web-audio";
+
+export {
+  PROGRESSION_PRESETS,
+  DEGREE_OPTIONS,
+  resolveProgression,
+  type ProgressionStep,
+} from "./progressions";

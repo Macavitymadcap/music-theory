@@ -3,7 +3,7 @@ import {
   getFrequencyFromTonicAndInterval,
   getFrequencyFromName,
 } from "./notes";
-import { CROTCHET, SEMIBREVE } from "./duration";
+import { type Duration, DURATIONS } from "./duration";
 
 export interface Chord {
   notes: Note[];
@@ -273,21 +273,21 @@ export const CHORD_DISPLAY_NAMES: Record<ChordType, string> = {
 export function createChordFromIntervals(
   tonic: number,
   intervals: readonly number[],
-  noteValue: number = CROTCHET
+  duration: Duration = DURATIONS.CROTCHET
 ): Chord {
   const notes: Note[] = intervals.map((interval) => ({
     frequency: getFrequencyFromTonicAndInterval(tonic, interval),
-    value: noteValue,
+    value: duration,
   }));
   return { notes, length: notes.length };
 }
 
-export function createChord(chordType: ChordType, tonic: number, noteValue: number = CROTCHET): Chord {
+export function createChord(chordType: ChordType, tonic: number, duration: Duration = DURATIONS.CROTCHET): Chord {
   const intervals = CHORD_INTERVALS[chordType];
   if (!intervals) throw new Error(`Unknown chord type: "${chordType}"`);
-  return createChordFromIntervals(tonic, intervals, noteValue);
+  return createChordFromIntervals(tonic, intervals, duration);
 }
 
-export function createChordFromNoteName(chordType: ChordType, tonicName: string, noteValue: number = CROTCHET): Chord {
-  return createChord(chordType, getFrequencyFromName(tonicName), noteValue);
+export function createChordFromNoteName(chordType: ChordType, tonicName: string, duration: Duration = DURATIONS.CROTCHET): Chord {
+  return createChord(chordType, getFrequencyFromName(tonicName), duration);
 }

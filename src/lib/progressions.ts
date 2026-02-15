@@ -6,7 +6,7 @@
  * semitone offsets from the tonic so they're key-agnostic.
  */
 
-import { CHORD_INTERVALS, CHORD_DISPLAY_NAMES, CHORD_GROUPS, type ChordType, type ChordGroup } from "./lib";
+import { CHORD_INTERVALS, CHORD_DISPLAY_NAMES, CHORD_GROUPS, type ChordType, type ChordGroup } from ".";
 
 // ── Types ──
 
@@ -157,19 +157,6 @@ export const PROGRESSION_PRESETS: ProgressionPreset[] = [
       step("vi7", 9, "minor7th"),
       step("ii7", 2, "minor7th"),
       step("V7", 7, "dominant7th"),
-    ],
-  },
-  {
-    name: "Hendrix Blues",
-    description: "I7♯9–IV7♯9–V7♯9 with the 'Hendrix chord'",
-    beatsPerBar: 4,
-    steps: [
-      step("I7♯9", 0, "7sharp9", 4),
-      step("IV7♯9", 5, "7sharp9", 2),
-      step("I7♯9", 0, "7sharp9", 2),
-      step("V7♯9", 7, "7sharp9", 2),
-      step("IV7♯9", 5, "7sharp9"),
-      step("I7♯9", 0, "7sharp9"),
     ],
   },
   {
