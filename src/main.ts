@@ -133,7 +133,7 @@ function render(): string {
 
   return `
     <header>
-      <h1>web theory</h1>
+      <h1>music theory</h1>
       <p>notes, scales, chords &amp; progressions</p>
     </header>
 
