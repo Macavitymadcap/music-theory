@@ -160,19 +160,6 @@ export const PROGRESSION_PRESETS: ProgressionPreset[] = [
     ],
   },
   {
-    name: "Hendrix Blues",
-    description: "I7♯9–IV7♯9–V7♯9 with the 'Hendrix chord'",
-    beatsPerBar: 4,
-    steps: [
-      step("I7♯9", 0, "7sharp9", 4),
-      step("IV7♯9", 5, "7sharp9", 2),
-      step("I7♯9", 0, "7sharp9", 2),
-      step("V7♯9", 7, "7sharp9", 2),
-      step("IV7♯9", 5, "7sharp9"),
-      step("I7♯9", 0, "7sharp9"),
-    ],
-  },
-  {
     name: "Coltrane Changes",
     description: "Giant Steps pattern: Imaj7–V7–Imaj7 in major thirds",
     beatsPerBar: 4,
