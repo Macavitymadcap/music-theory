@@ -80,14 +80,14 @@
 
 ### Tasks
 
-- [ ] Create `src/components/molecules/PianoKeyboard.tsx`.
+- [x] Create `src/components/molecules/PianoKeyboard.tsx`.
   - Props: `highlightedFrequencies: number[]`, `sequenceIndex?: number` (for scale playback highlighting).
   - Derives MIDI range reactively from `highlightedFrequencies` (with minimum 3-octave display range).
   - Renders white and black keys using `<For>`.
   - Active keys determined by `props.highlightedFrequencies` — no internal highlight state. This fixes the chord progression highlight bug by design: the parent controls exactly which frequencies are active at any moment.
   - Tooltip on hover (CSS-only `:hover` + `::after` pseudo-element preferred over JS; fall back to `title` attribute).
-- [ ] Create `src/components/atoms/PianoKey.tsx` — single key, accepts `midi`, `isBlack`, `isActive`, `leftPercent?` (for black key positioning).
-- [ ] Write tests:
+- [x] Create `src/components/atoms/PianoKey.tsx` — single key, accepts `midi`, `isBlack`, `isActive`, `leftPercent?` (for black key positioning).
+- [x] Write tests:
   - Correct number of white/black keys rendered for a given MIDI range.
   - Active class applied to keys matching `highlightedFrequencies`.
   - No active class on keys not in `highlightedFrequencies`.

@@ -7,6 +7,8 @@ import NumberInput from "./components/atoms/number-input/NumberInput";
 import RadioGroup from "./components/atoms/radio-group/RadioGroup";
 import Select from "./components/atoms/select/Select";
 
+import PianoKeyboard from "./components/molecules/piano-keyboard/PianoKeyboard";
+
 const App: Component = () => {
   const [mode, setMode] = createSignal("note");
   const [note, setNote] = createSignal("c4");
@@ -49,6 +51,7 @@ const App: Component = () => {
         <NumberInput id="bpm-input" value={bpm()} onChange={setBpm} min={1} max={300} />
       </Field>
       <Button onClick={() => console.log(mode(), note(), bpm())}>▶ play</Button>
+      <PianoKeyboard highlightedFrequencies={[261.63, 329.63, 392]} />
     </div>
   );
 };
