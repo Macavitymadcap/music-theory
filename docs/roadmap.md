@@ -23,27 +23,26 @@
 
 ### Tasks
 
-- [ ] Install dependencies:
+- [X] Install dependencies:
   ```
   bun add solid-js
   bun add -d vite-plugin-solid @solidjs/testing-library vitest jsdom @testing-library/jest-dom
   ```
-- [ ] Update `vite.config.ts` to add `solidPlugin()` and Vitest config block:
+- [X] Update `vite.config.ts` to add `solidPlugin()` and Vitest config block:
   ```ts
   import solid from "vite-plugin-solid";
   // test: { environment: "jsdom", globals: true, setupFiles: [...] }
   ```
-- [ ] Update `tsconfig.json`: set `"jsx": "preserve"`, `"jsxImportSource": "solid-js"`.
-- [ ] Create `src/main.tsx` — mounts `<App />` to `#app`.
-- [ ] Create `src/App.tsx` — stub component, renders app shell.
-- [ ] Delete `src/main.ts` and `src/piano.ts` (will be rebuilt as components).
-- [ ] Write first Vitest test: smoke test that `createScale` returns the correct number of notes.
-- [ ] Verify `bun run dev`, `bun run build`, and `bun run test` all pass.
+- [x] Update `tsconfig.json`: set `"jsx": "preserve"`, `"jsxImportSource": "solid-js"`.
+- [x] Create `src/main.tsx` — mounts `<App />` to `#app`.
+- [x] Create `src/App.tsx` — stub component, renders app shell.
+- [x] Delete `src/main.ts` and `src/piano.ts` (will be rebuilt as components).
+- [x] Write first Vitest test: smoke test that `createScale` returns the correct number of notes.
+- [x] Verify `bun run dev`, `bun run build`, and `bun run test` all pass.
 
 ### Acceptance Criteria
 - App renders in browser without console errors.
 - `bun run test` exits 0 with at least one passing test.
-- GitHub Actions pipeline passes.
 
 ---
 
