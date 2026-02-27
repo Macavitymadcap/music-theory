@@ -1,0 +1,18 @@
+.number-input {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  padding: 0.5rem 0.65rem;
+  width: 100%;
+  transition: border-color var(--transition);
+}
+
+.number-input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+}

@@ -23,7 +23,7 @@ interface PlayOptions {
  * Convert a note's duration (fraction of a whole note) to seconds at a given BPM.
  * In 4/4 time, a whole note = 4 beats. At 120 BPM, one beat = 0.5s.
  */
-function durationToSeconds(value: number, bpm: number, timeSignature: number): number {
+export function durationToSeconds(value: number, bpm: number, timeSignature: number): number {
   const secondsPerBeat = 60 / bpm;
   const beatsForNote = value * timeSignature;
   return beatsForNote * secondsPerBeat;
@@ -35,7 +35,7 @@ function durationToSeconds(value: number, bpm: number, timeSignature: number): n
  * Decay: 25-50% decays to ~0.2
  * Release: 50-100% fades to 0
  */
-function applyEnvelope(
+export function applyEnvelope(
   gainNode: GainNode,
   startTime: number,
   duration: number
@@ -45,7 +45,7 @@ function applyEnvelope(
   const releaseStart = duration * 0.5;
 
   gainNode.gain.setValueAtTime(0, startTime);
-  gainNode.gain.linearRampToValueAtTime(1.0, startTime + attack);
+  gainNode.gain.linearRampToValueAtTime(1, startTime + attack);
   gainNode.gain.linearRampToValueAtTime(0.2, startTime + attack + decay);
   gainNode.gain.linearRampToValueAtTime(0, startTime + releaseStart + (duration - releaseStart));
 }
@@ -175,7 +175,7 @@ export function chainNodes(
     nodes[i].connect(nodes[i + 1]);
   }
   if (nodes.length > 0) {
-    nodes[nodes.length - 1].connect(context.destination);
+    nodes.at(-1)?.connect(context.destination);
   }
   return nodes[0] ?? context.destination;
 }

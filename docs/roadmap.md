@@ -53,19 +53,19 @@
 ### Tasks
 
 **Tokens**
-- [ ] Create `src/styles/tokens.css` — move all `:root` CSS variables from `style.css` here. Variables must cover: colours, spacing scale, typography (font families, sizes), border radius, transition durations.
-- [ ] Import `tokens.css` in `src/main.tsx` (global, once).
+- [x] Create `src/styles/tokens.css` — move all `:root` CSS variables from `style.css` here. Variables must cover: colours, spacing scale, typography (font families, sizes), border radius, transition durations.
+- [x] Import `tokens.css` in `src/main.tsx` (global, once).
 
 **Atom components** — each in `src/components/atoms/`
-- [ ] `Select.tsx` — wraps `<select>`, accepts `options: {value, label}[]`, optional `groups: {label, options[]}[]` for `<optgroup>`, and standard `value`/`onChange` props.
-- [ ] `NumberInput.tsx` — wraps `<input type="number">` with `min`, `max`, `value`, `onChange`.
-- [ ] `Button.tsx` — accepts `variant: "primary" | "danger" | "ghost"`, `onClick`, `disabled`.
-- [ ] `RadioGroup.tsx` — renders a set of radio inputs as a button-strip (replaces `.mode-group`). Accepts `options: {value, label}[]`, `value`, `onChange`.
-- [ ] `Label.tsx` — styled mono-uppercase label, accepts `for` attribute.
-- [ ] `Field.tsx` — wraps a Label + any child input in the standard `.field` layout.
+- [x] `Select.tsx` — wraps `<select>`, accepts `options: {value, label}[]`, optional `groups: {label, options[]}[]` for `<optgroup>`, and standard `value`/`onChange` props.
+- [x] `NumberInput.tsx` — wraps `<input type="number">` with `min`, `max`, `value`, `onChange`.
+- [x] `Button.tsx` — accepts `variant: "primary" | "danger" | "ghost"`, `onClick`, `disabled`.
+- [x] `RadioGroup.tsx` — renders a set of radio inputs as a button-strip (replaces `.mode-group`). Accepts `options: {value, label}[]`, `value`, `onChange`.
+- [x] `Label.tsx` — styled mono-uppercase label, accepts `for` attribute.
+- [x] `Field.tsx` — wraps a Label + any child input in the standard `.field` layout.
 
 **Tests**
-- [ ] Unit test each atom: renders without error, responds to controlled value changes, applies correct ARIA attributes.
+- [x] Unit test each atom: renders without error, responds to controlled value changes, applies correct ARIA attributes.
 
 ### Acceptance Criteria
 - All atoms render in browser (create a temporary `src/dev/Sandbox.tsx` page if needed).

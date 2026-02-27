@@ -12,4 +12,5 @@
   --mono: "JetBrains Mono", monospace;
   --sans: "DM Sans", system-ui, sans-serif;
   --radius: 4px;
+  --transition: 0.15s;
 }
