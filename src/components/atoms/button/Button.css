@@ -1,0 +1,75 @@
+.btn {
+  appearance: none;
+  border-radius: var(--radius);
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.7rem 1.5rem;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+  border: 1px solid transparent;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* primary */
+.btn--primary {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn--primary:focus-visible {
+  outline-color: var(--accent);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* danger */
+.btn--danger {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+
+.btn--danger:focus-visible {
+  outline-color: var(--danger);
+}
+
+.btn--danger:hover:not(:disabled) {
+  background: #a33;
+  border-color: #a33;
+}
+
+/* ghost */
+.btn--ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+.btn--ghost:focus-visible {
+  outline-color: var(--border);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--text-muted);
+}

@@ -1,0 +1,27 @@
+.notation {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.notation__label {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.notation__container {
+  background: #fff;
+  border-radius: var(--radius);
+  /* Scroll vertically for long progressions, never horizontally */
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-height: 440px; /* ~4 rows before scrolling */
+}
+
+.notation__container svg {
+  display: block;
+  width: 100%;
+}

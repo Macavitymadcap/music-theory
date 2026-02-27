@@ -16,8 +16,11 @@ export type Duration = (typeof DURATIONS)[keyof typeof DURATIONS];
 
 /** Time signatures as beats per measure */
 export const TIME_SIGNATURES = {
-  FOUR_FOUR: 4,
-  THREE_FOUR: 3
+  TWO_FOUR: 2 / 4,
+  THREE_FOUR: 3 / 4,
+  FOUR_FOUR: 4 / 4,
+  SIX_EIGHT: 6 / 8,
+  TWELVE_EIGHT: 12 / 8,
 } as const;
 
-export type TimeSignature = (typeof TIME_SIGNATURES)[keyof typeof TIME_SIGNATURES]
+export type TimeSignature = (typeof TIME_SIGNATURES)[keyof typeof TIME_SIGNATURES];

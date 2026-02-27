@@ -1,0 +1,6 @@
+.custom-progression-builder__steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  min-height: 2rem;
+}

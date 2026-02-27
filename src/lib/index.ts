@@ -46,7 +46,10 @@ export {
   playScale,
   playChord,
   playChordProgression,
+  scheduleChordAtTime,
   chainNodes,
+  durationToSeconds,
+  applyEnvelope
 } from "./web-audio";
 
 export {
