@@ -1,8 +1,8 @@
 import type { Component } from "solid-js";
-import Select from "../../atoms/select/Select";
-import Field from "../../atoms/field/Field";
-import Label from "../../atoms/label/Label";
-import { NOTE_NAMES } from "../../../lib/notes";
+import Select from "../atoms/select/Select";
+import Field from "../atoms/field/Field";
+import Label from "../atoms/label/Label";
+import { NOTE_NAMES } from "../../lib/notes";
 
 const OCTAVES = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 

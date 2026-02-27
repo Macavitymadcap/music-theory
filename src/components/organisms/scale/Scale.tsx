@@ -1,10 +1,6 @@
 import { type Component, createSignal, createMemo, createEffect } from "solid-js";
 import { useAudio } from "../../../context/AudioContext";
 import { usePlayback } from "../../../context/PlaybackContext";
-import PitchSelect from "../shared/PitchSelect";
-import WaveformSelect from "../shared/WaveformSelect";
-import DurationSelect from "../shared/DurationSelect";
-import BpmInput from "../shared/BpmInput";
 import Button from "../../atoms/button/Button";
 import Row from "../../molecules/row/Row";
 import Field from "../../atoms/field/Field";
@@ -23,6 +19,10 @@ import {
   type WaveformType,
 } from "../../../lib";
 import { DURATIONS, TIME_SIGNATURES, type Duration } from "../../../lib/duration";
+import PitchSelect from "../../molecules/PitchSelect";
+import BpmInput from "../../molecules/BpmInput";
+import DurationSelect from "../../molecules/DurationSelect";
+import WaveformSelect from "../../molecules/WaveformSelect";
 
 interface ScaleProps {
   onSelectionChange: (frequencies: number[]) => void;

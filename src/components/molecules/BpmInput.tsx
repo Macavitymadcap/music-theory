@@ -1,7 +1,7 @@
 import type { Component } from "solid-js";
-import NumberInput from "../../atoms/number-input/NumberInput";
-import Field from "../../atoms/field/Field";
-import Label from "../../atoms/label/Label";
+import NumberInput from "../atoms/number-input/NumberInput";
+import Field from "../atoms/field/Field";
+import Label from "../atoms/label/Label";
 
 interface BpmInputProps {
   id: string;

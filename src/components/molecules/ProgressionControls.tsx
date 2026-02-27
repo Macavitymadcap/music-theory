@@ -1,12 +1,12 @@
 import type { Component } from "solid-js";
-import Row from "../row/Row";
-import PitchSelect from "../../organisms/shared/PitchSelect";
-import WaveformSelect from "../../organisms/shared/WaveformSelect";
-import BpmInput from "../../organisms/shared/BpmInput";
-import Field from "../../atoms/field/Field";
-import Label from "../../atoms/label/Label";
-import NumberInput from "../../atoms/number-input/NumberInput";
-import type { WaveformType } from "../../../lib/web-audio";
+import Row from "./row/Row";
+import Field from "../atoms/field/Field";
+import Label from "../atoms/label/Label";
+import NumberInput from "../atoms/number-input/NumberInput";
+import type { WaveformType } from "../../lib/web-audio";
+import BpmInput from "./BpmInput";
+import PitchSelect from "./PitchSelect";
+import WaveformSelect from "./WaveformSelect";
 
 interface ProgressionControlsProps {
   pitch: string;

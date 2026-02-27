@@ -1,9 +1,9 @@
 import type { Component } from "solid-js";
-import Select from "../../atoms/select/Select";
-import Field from "../../atoms/field/Field";
-import Label from "../../atoms/label/Label";
-import type { Duration } from "../../../lib/duration";
-import { DURATIONS } from "../../../lib/duration";
+import Select from "../atoms/select/Select";
+import Field from "../atoms/field/Field";
+import Label from "../atoms/label/Label";
+import type { Duration } from "../../lib/duration";
+import { DURATIONS } from "../../lib/duration";
 
 const DURATION_OPTIONS = [
   { value: String(DURATIONS.SEMIQUAVER), label: "1/16" },

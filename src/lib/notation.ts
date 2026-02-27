@@ -78,18 +78,36 @@ export function renderNotation(
   const containerWidth = options.width ?? container.clientWidth ?? 600;
   const usableWidth = containerWidth - H_PADDING * 2;
 
-  // --- Layout pass: assign each bar to a row ---
+  const slots = expandNotationBars(bars);
+  const idealBarWidth = getIdealBarWidth(usableWidth, slots.length);
+  const rows = packSlotsIntoRows(slots, idealBarWidth, containerWidth);
 
-  // Expand each NotationBar entry into individual musical bars with metadata
-  interface BarSlot {
-    notationBar: NotationBar;
-    barIndex: number;      // which musical bar within the step (0-based)
-    barSpan: number;       // total bars for this step (for width calculation)
-    isFirst: boolean;      // first musical bar of this step (show time sig)
-    isFirstInRow: boolean; // will be set in layout pass (show clef)
-    timeSignature: string; // resolved time sig (inherited from step, always set)
-  }
+  const totalHeight = rows.length * ROW_HEIGHT + 20;
 
+  const renderer = new Renderer(container, Renderer.Backends.SVG);
+  renderer.resize(containerWidth, totalHeight);
+  const context = renderer.getContext();
+  context.setFont("Arial", 10);
+
+  renderRows(rows, context, idealBarWidth);
+
+  return () => {
+    while (container.firstChild) container.firstChild.remove();
+  };
+}
+
+interface BarSlot {
+  notationBar: NotationBar;
+  barIndex: number;
+  barSpan: number;
+  isFirst: boolean;
+  isFirstInRow: boolean;
+  timeSignature: string;
+}
+
+interface Row { slots: BarSlot[]; }
+
+function expandNotationBars(bars: NotationBar[]): BarSlot[] {
   const slots: BarSlot[] = [];
   for (const nb of bars) {
     const span = nb.bars ?? 1;
@@ -104,29 +122,28 @@ export function renderNotation(
       });
     }
   }
+  return slots;
+}
 
-  // Determine bar width — try to fit nicely, but honour minimum
-  // Use the wider of: (usableWidth - clef) / totalSlots, or MIN_BAR_PX
-  const idealBarWidth = Math.max(
+function getIdealBarWidth(usableWidth: number, slotCount: number): number {
+  return Math.max(
     MIN_BAR_PX,
-    Math.floor((usableWidth - CLEF_PX) / slots.length)
+    Math.floor((usableWidth - CLEF_PX) / slotCount)
   );
+}
 
-  // Pack slots into rows
-  interface Row { slots: BarSlot[]; }
+function packSlotsIntoRows(slots: BarSlot[], idealBarWidth: number, containerWidth: number): Row[] {
   const rows: Row[] = [];
   let currentRow: BarSlot[] = [];
-  let currentRowWidth = CLEF_PX + H_PADDING; // first row always has clef
+  let currentRowWidth = CLEF_PX + H_PADDING;
 
-  for (let i = 0; i < slots.length; i++) {
-    const slot = slots[i];
+  for (const slot of slots) {
     const slotWidth = idealBarWidth;
 
     if (currentRow.length > 0 && currentRowWidth + slotWidth > containerWidth) {
-      // Start a new row
       rows.push({ slots: currentRow });
       currentRow = [];
-      currentRowWidth = CLEF_PX + H_PADDING; // each row starts with a clef
+      currentRowWidth = CLEF_PX + H_PADDING;
     }
 
     if (currentRow.length === 0) {
@@ -137,16 +154,10 @@ export function renderNotation(
     currentRowWidth += slotWidth;
   }
   if (currentRow.length > 0) rows.push({ slots: currentRow });
+  return rows;
+}
 
-  // --- Render pass ---
-
-  const totalHeight = rows.length * ROW_HEIGHT + 20;
-
-  const renderer = new Renderer(container, Renderer.Backends.SVG);
-  renderer.resize(containerWidth, totalHeight);
-  const context = renderer.getContext();
-  context.setFont("Arial", 10);
-
+function renderRows(rows: Row[], context: any, idealBarWidth: number) {
   for (let rowIdx = 0; rowIdx < rows.length; rowIdx++) {
     const row = rows[rowIdx];
     const rowY = rowIdx * ROW_HEIGHT;
@@ -154,52 +165,54 @@ export function renderNotation(
 
     for (let slotIdx = 0; slotIdx < row.slots.length; slotIdx++) {
       const slot = row.slots[slotIdx];
-      const isFirstInRow = slotIdx === 0;
-      const staveWidth = idealBarWidth + (isFirstInRow ? CLEF_PX : 0);
-
-      const stave = new Stave(xOffset, rowY + STAVE_Y_OFFSET, staveWidth);
-      if (isFirstInRow) stave.addClef("treble");
-      // Show time signature on first bar of a step that's also first in its row,
-      // or on the very first bar of the whole notation
-      if (slot.isFirst && slot.notationBar.timeSignature) {
-        stave.addTimeSignature(slot.notationBar.timeSignature);
-      }
-      stave.setContext(context).draw();
-
-      // Label: show on first musical bar of each step
-      if (slot.isFirst && slot.notationBar.label) {
-        context.save();
-        context.setFont("Arial", 11);
-        const labelX = xOffset + staveWidth / 2 - (slot.notationBar.label.length * 3);
-        context.fillText(slot.notationBar.label, labelX, rowY + LABEL_Y_OFFSET);
-        context.restore();
-      }
-
-      // Draw notes in every bar of a step — repeated chord shows in each bar
-      if (slot.notationBar.chords.length > 0) {
-        const [beatsNum] = slot.timeSignature.split("/").map(Number);
-        const duration = getDuration(slot.notationBar.chords.length, beatsNum);
-
-        const staveNotes = slot.notationBar.chords.map((freqs) =>
-          frequenciesToStaveNote(freqs, duration)
-        );
-
-        const voice = new Voice({ numBeats: beatsNum, beatValue: 4 }).setStrict(false);
-        voice.addTickables(staveNotes);
-
-        new Formatter()
-          .joinVoices([voice])
-          .format([voice], staveWidth - 25);
-        voice.draw(context, stave);
-      }
-
-      xOffset += staveWidth;
+      renderBar(slot, slotIdx, xOffset, rowY, context, idealBarWidth);
+      xOffset += idealBarWidth + (slotIdx === 0 ? CLEF_PX : 0);
     }
   }
+}
 
-  return () => {
-    while (container.firstChild) container.firstChild.remove();
-  };
+function renderBar(
+  slot: BarSlot,
+  slotIdx: number,
+  xOffset: number,
+  rowY: number,
+  context: any,
+  idealBarWidth: number
+) {
+  const isFirstInRow = slotIdx === 0;
+  const staveWidth = idealBarWidth + (isFirstInRow ? CLEF_PX : 0);
+
+  const stave = new Stave(xOffset, rowY + STAVE_Y_OFFSET, staveWidth);
+  if (isFirstInRow) stave.addClef("treble");
+  if (slot.isFirst && slot.notationBar.timeSignature) {
+    stave.addTimeSignature(slot.notationBar.timeSignature);
+  }
+  stave.setContext(context).draw();
+
+  if (slot.isFirst && slot.notationBar.label) {
+    context.save();
+    context.setFont("Arial", 11);
+    const labelX = xOffset + staveWidth / 2 - (slot.notationBar.label.length * 3);
+    context.fillText(slot.notationBar.label, labelX, rowY + LABEL_Y_OFFSET);
+    context.restore();
+  }
+
+  if (slot.notationBar.chords.length > 0) {
+    const [beatsNum] = slot.timeSignature.split("/").map(Number);
+    const duration = getDuration(slot.notationBar.chords.length, beatsNum);
+
+    const staveNotes = slot.notationBar.chords.map((freqs) =>
+      frequenciesToStaveNote(freqs, duration)
+    );
+
+    const voice = new Voice({ numBeats: beatsNum, beatValue: 4 }).setStrict(false);
+    voice.addTickables(staveNotes);
+
+    new Formatter()
+      .joinVoices([voice])
+      .format([voice], staveWidth - 25);
+    voice.draw(context, stave);
+  }
 }
 
 /** Pick note duration to fill the available beats in a single bar */

@@ -1,8 +1,8 @@
 import type { Component } from "solid-js";
-import Select from "../../atoms/select/Select";
-import Field from "../../atoms/field/Field";
-import Label from "../../atoms/label/Label";
-import type { WaveformType } from "../../../lib/web-audio";
+import Select from "../atoms/select/Select";
+import Field from "../atoms/field/Field";
+import Label from "../atoms/label/Label";
+import type { WaveformType } from "../../lib/web-audio";
 
 const WAVEFORM_OPTIONS = [
   { value: "sine", label: "sine" },
