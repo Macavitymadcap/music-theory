@@ -135,19 +135,19 @@
 
 ### Tasks
 
-- [ ] `ProgressionPanel.tsx` — houses preset/custom radio toggle.
-- [ ] `PresetProgression.tsx` — preset select with description and step badges display.
-- [ ] `CustomProgressionBuilder.tsx` — degree select, chord type grouped-select, bars input, hits/bar input, add button. Renders editable step list.
-- [ ] `StepBadge.tsx` (atom) — displays a single progression step; optional remove button.
-- [ ] `ProgressionControls.tsx` (molecule) — key select, octave input, repeats, global hits/bar, waveform, BPM.
+- [x] `ProgressionPanel.tsx` — houses preset/custom radio toggle.
+- [x] `PresetProgression.tsx` — preset select with description and step badges display.
+- [x] `CustomProgressionBuilder.tsx` — degree select, chord type grouped-select, bars input, hits/bar input, add button. Renders editable step list.
+- [x] `StepBadge.tsx` (atom) — displays a single progression step; optional remove button.
+- [x] `ProgressionControls.tsx` (molecule) — key select, octave input, repeats, global hits/bar, waveform, BPM.
 - [ ] Playback: resolve progression → schedule all chords → drive `currentFrequencies` through chord sequence on a timer, updating one chord at a time. This is the correct fix for the progression highlight bug.
-- [ ] Expand `TIME_SIGNATURES` in `src/lib/duration.ts` to include: `2/4`, `3/4`, `4/4`, `6/8`, `12/8` (update the type and all consumers).
+- [x] Expand `TIME_SIGNATURES` in `src/lib/duration.ts` to include: `2/4`, `3/4`, `4/4`, `6/8`, `12/8` (update the type and all consumers).
 
 **Tests**
-- [ ] Custom builder: add step, remove step, reorder.
-- [ ] Preset display: correct steps shown for selected preset.
-- [ ] Playback timer: `currentFrequencies` matches expected chord at each step.
-- [ ] Time signature expansion: `durationToSeconds` correct for `6/8` and `12/8`.
+- [x] Custom builder: add step, remove step, reorder.
+- [x] Preset display: correct steps shown for selected preset.
+- [x] Playback timer: `currentFrequencies` matches expected chord at each step.
+- [x] Time signature expansion: `durationToSeconds` correct for `6/8` and `12/8`.
 
 ### Acceptance Criteria
 - Progression mode is fully functional, feature-equivalent to the original.

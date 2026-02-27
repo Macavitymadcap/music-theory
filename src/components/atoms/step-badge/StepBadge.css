@@ -1,0 +1,42 @@
+.step-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.25rem 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text);
+}
+
+.step-badge__degree {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.step-badge__chord {
+  color: var(--text-muted);
+}
+
+.step-badge__bars {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.step-badge__remove {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0 0.1rem;
+  margin-left: 0.15rem;
+  transition: color var(--transition);
+}
+
+.step-badge__remove:hover {
+  color: var(--danger);
+}

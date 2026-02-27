@@ -8,13 +8,15 @@ import Scale from "../scale-panel/Scale";
 import Chord from "../chord/Chord";
 import { usePlayback } from "../../../context/PlaybackContext";
 import "./ModeShell.css";
+import Progression from "../progression/Progression";
 
-type Mode = "note" | "scale" | "chord";
+type Mode = "note" | "scale" | "chord" | "progression";
 
 const MODE_OPTIONS = [
   { value: "note", label: "note" },
   { value: "scale", label: "scale" },
   { value: "chord", label: "chord" },
+  { value: "progression", label: "progression" }
 ];
 
 const ModeShell: Component = () => {
@@ -50,6 +52,9 @@ const ModeShell: Component = () => {
         </Match>
         <Match when={mode() === "chord"}>
           <Chord onSelectionChange={setSelectionFrequencies} />
+        </Match>
+        <Match when={mode() === "progression"}>
+          <Progression onSelectionChange={setSelectionFrequencies} />
         </Match>
       </Switch>
 
