@@ -1,14 +1,16 @@
-import { type Component, createSignal, Switch, Match } from "solid-js";
+import { type Component, createSignal, Switch, Match, createMemo } from "solid-js";
 import RadioGroup from "../../atoms/radio-group/RadioGroup";
 import Field from "../../atoms/field/Field";
 import Label from "../../atoms/label/Label";
 import PianoKeyboard from "../../molecules/piano-keyboard/PianoKeyboard";
-import NotePanel from "../note/NotePanel";
-import Scale from "../scale-panel/Scale";
+import Note from "../note/Note";
+import Scale from "../scale/Scale";
 import Chord from "../chord/Chord";
-import { usePlayback } from "../../../context/PlaybackContext";
-import "./ModeShell.css";
 import Progression from "../progression/Progression";
+import Notation from "../../molecules/notation/Notation";
+import { usePlayback } from "../../../context/PlaybackContext";
+import type { NotationBar } from "../../../lib/notation";
+import "./ModeShell.css";
 
 type Mode = "note" | "scale" | "chord" | "progression";
 
@@ -16,16 +18,34 @@ const MODE_OPTIONS = [
   { value: "note", label: "note" },
   { value: "scale", label: "scale" },
   { value: "chord", label: "chord" },
-  { value: "progression", label: "progression" }
+  { value: "progression", label: "progression" },
 ];
 
 const ModeShell: Component = () => {
   const [mode, setMode] = createSignal<Mode>("note");
   const playback = usePlayback();
 
-  // Tracks the full set of frequencies for the current selection —
-  // updated by panels via callback, never touched during playback
   const [selectionFrequencies, setSelectionFrequencies] = createSignal<number[]>([]);
+  const [progressionBars, setProgressionBars] = createSignal<NotationBar[]>([]);
+
+  const notationBars = createMemo<NotationBar[]>(() => {
+    if (mode() === "progression") return progressionBars();
+    const freqs = selectionFrequencies();
+    if (!freqs.length) return [];
+    if (mode() === "scale") {
+      // Split scale notes into bars of 4, time signature on first bar only
+      const scaleBars: NotationBar[] = [];
+      for (let i = 0; i < freqs.length; i += 4) {
+        scaleBars.push({
+          chords: freqs.slice(i, i + 4).map((f) => [f]),
+          timeSignature: i === 0 ? "4/4" : undefined,
+        });
+      }
+      return scaleBars;
+    }
+    // note and chord: all frequencies as one simultaneous chord
+    return [{ chords: [freqs], timeSignature: "4/4" }];
+  });
 
   return (
     <div class="mode-shell">
@@ -37,15 +57,16 @@ const ModeShell: Component = () => {
           value={mode()}
           onChange={(v) => {
             playback.stop();
+            // Do NOT reset selectionFrequencies here — the incoming panel's
+            // createEffect will update it on mount, avoiding a blank notation flash
             setMode(v as Mode);
-            setSelectionFrequencies([]);
           }}
         />
       </Field>
 
       <Switch>
         <Match when={mode() === "note"}>
-          <NotePanel onSelectionChange={setSelectionFrequencies} />
+          <Note onSelectionChange={setSelectionFrequencies} />
         </Match>
         <Match when={mode() === "scale"}>
           <Scale onSelectionChange={setSelectionFrequencies} />
@@ -54,9 +75,14 @@ const ModeShell: Component = () => {
           <Chord onSelectionChange={setSelectionFrequencies} />
         </Match>
         <Match when={mode() === "progression"}>
-          <Progression onSelectionChange={setSelectionFrequencies} />
+          <Progression
+            onSelectionChange={setSelectionFrequencies}
+            onNotationChange={setProgressionBars}
+          />
         </Match>
       </Switch>
+
+      <Notation bars={notationBars()} label="notation" />
 
       <PianoKeyboard
         highlightedFrequencies={playback.currentFrequencies()}

@@ -11,8 +11,6 @@ import type { WaveformType } from "../../../lib/web-audio";
 interface ProgressionControlsProps {
   pitch: string;
   onPitchChange: (v: string) => void;
-  octave: number;
-  onOctaveChange: (v: number) => void;
   repeats: number;
   onRepeatsChange: (v: number) => void;
   waveform: WaveformType;
@@ -26,17 +24,13 @@ const ProgressionControls: Component<ProgressionControlsProps> = (props) => (
     <Row>
       <PitchSelect id="prog-pitch" value={props.pitch} onChange={props.onPitchChange} />
       <WaveformSelect id="prog-waveform" value={props.waveform} onChange={props.onWaveformChange} />
+      <BpmInput id="prog-bpm" value={props.bpm} onChange={props.onBpmChange} />
     </Row>
     <Row>
-      <Field>
-        <Label for="prog-octave">octave</Label>
-        <NumberInput id="prog-octave" value={props.octave} onChange={props.onOctaveChange} min={0} max={8} />
-      </Field>
       <Field>
         <Label for="prog-repeats">repeats</Label>
         <NumberInput id="prog-repeats" value={props.repeats} onChange={props.onRepeatsChange} min={1} max={8} />
       </Field>
-      <BpmInput id="prog-bpm" value={props.bpm} onChange={props.onBpmChange} />
     </Row>
   </div>
 );

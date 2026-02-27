@@ -162,19 +162,19 @@
 
 ### Tasks
 
-- [ ] `bun add vexflow`
-- [ ] Create `src/components/molecules/Notation.tsx`.
+- [x] `bun add vexflow`
+- [x] Create `src/components/molecules/Notation.tsx`.
   - Accepts `mode`, `notes: Note[]`, `timeSignature`, `bars?` (for progressions).
   - Uses a `ref` + `onMount`/`onCleanup` to manage the VexFlow renderer lifecycle.
   - For note mode: single note on a stave.
   - For scale/chord mode: notes on a single bar stave.
   - For progression mode: one bar per progression step, wrapping into multiple lines if needed.
-- [ ] Helper `src/lib/notation.ts` — converts `Note[]` and intervals to VexFlow `StaveNote` definitions. Keep VexFlow imports isolated here.
-- [ ] Integrate `<Notation>` into each panel and the progression panel.
+- [x] Helper `src/lib/notation.ts` — converts `Note[]` and intervals to VexFlow `StaveNote` definitions. Keep VexFlow imports isolated here.
+- [x] Integrate `<Notation>` into each panel and the progression panel.
 
 **Tests**
-- [ ] `notation.ts` unit tests: correct VexFlow note names generated from frequencies.
-- [ ] Component renders an SVG element without throwing.
+- [x] `notation.ts` unit tests: correct VexFlow note names generated from frequencies.
+- [x] Component renders an SVG element without throwing.
 
 ### Acceptance Criteria
 - Notation renders for all four modes.

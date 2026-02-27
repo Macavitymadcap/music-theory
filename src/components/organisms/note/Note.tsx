@@ -20,7 +20,7 @@ interface NotePanelProps {
   onSelectionChange: (frequencies: number[]) => void;
 }
 
-const NotePanel: Component<NotePanelProps> = (props) => {
+const Note: Component<NotePanelProps> = (props) => {
   const audio = useAudio();
   const playback = usePlayback();
 
@@ -28,6 +28,7 @@ const NotePanel: Component<NotePanelProps> = (props) => {
   const [waveform, setWaveform] = createSignal<WaveformType>("sine");
   const [duration, setDuration] = createSignal<Duration>(DURATIONS.CROTCHET);
   const [bpm, setBpm] = createSignal(120);
+  
 
   createEffect(() => {
     const freq = getFrequencyFromName(pitch());
@@ -79,4 +80,4 @@ const NotePanel: Component<NotePanelProps> = (props) => {
   );
 };
 
-export default NotePanel;
+export default Note;

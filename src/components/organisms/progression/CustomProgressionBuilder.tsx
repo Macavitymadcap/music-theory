@@ -28,6 +28,8 @@ const CustomProgressionBuilder: Component<CustomProgressionBuilderProps> = (prop
   const [degree, setDegree] = createSignal(DEGREE_OPTIONS[0].label);
   const [chordType, setChordType] = createSignal<ChordType>("majorTriad");
   const [bars, setBars] = createSignal(1);
+  const [beatsPerBar, setBeatsPerBar] = createSignal(4);
+  const [hitsPerBar, setHitsPerBar] = createSignal(1);
 
   function addStep() {
     const selected = DEGREE_OPTIONS.find((d) => d.label === degree())!;
@@ -36,7 +38,8 @@ const CustomProgressionBuilder: Component<CustomProgressionBuilderProps> = (prop
       semitones: selected.semitones,
       chordType: chordType(),
       bars: bars(),
-      hitsPerBar: 1,
+      beatsPerBar: beatsPerBar(),
+      hitsPerBar: hitsPerBar(),
     };
     props.onStepsChange([...props.steps, newStep]);
   }
@@ -66,9 +69,19 @@ const CustomProgressionBuilder: Component<CustomProgressionBuilderProps> = (prop
             groups={CHORD_GROUPS_FOR_SELECT}
           />
         </Field>
+      </Row>
+      <Row>
         <Field>
           <Label for="builder-bars">bars</Label>
           <NumberInput id="builder-bars" value={bars()} onChange={setBars} min={1} max={8} />
+        </Field>
+        <Field>
+          <Label for="builder-beats">beats/bar</Label>
+          <NumberInput id="builder-beats" value={beatsPerBar()} onChange={setBeatsPerBar} min={2} max={12} />
+        </Field>
+        <Field>
+          <Label for="builder-hits">hits/bar</Label>
+          <NumberInput id="builder-hits" value={hitsPerBar()} onChange={setHitsPerBar} min={1} max={8} />
         </Field>
       </Row>
       <Button variant="ghost" onClick={addStep}>+ add step</Button>

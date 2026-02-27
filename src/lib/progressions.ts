@@ -21,6 +21,8 @@ export interface ProgressionStep {
   bars: number;
   /** How many times the chord is struck per bar (subdivisions) */
   hitsPerBar: number;
+  /**  Number of beasts in a bar */
+  beatsPerBar: number
 }
 
 export interface ProgressionPreset {
@@ -30,6 +32,15 @@ export interface ProgressionPreset {
   beatsPerBar: number;
 }
 
+export interface ResolvedStep {
+  label: string;
+  tonicFreq: number;
+  intervals: number[];
+  bars: number;
+  hitsPerBar: number;
+  beatsPerBar: number; // new
+}
+
 // ── Helpers ──
 
 function step(
@@ -37,9 +48,10 @@ function step(
   semitones: number,
   chordType: ChordType,
   bars = 1,
-  hitsPerBar = 1
+  hitsPerBar = 1,
+  beatsPerBar = 4,
 ): ProgressionStep {
-  return { label, semitones, chordType, bars, hitsPerBar };
+  return { label, semitones, chordType, bars, hitsPerBar, beatsPerBar };
 }
 
 // ── Presets ──
@@ -224,15 +236,13 @@ export const DEGREE_OPTIONS: { label: string; semitones: number }[] = [
 export function resolveProgression(
   steps: ProgressionStep[],
   tonicFreq: number
-): { intervals: readonly number[]; tonicFreq: number; bars: number; hitsPerBar: number; label: string }[] {
-  return steps.map((s) => {
-    const freq = tonicFreq * Math.pow(2, s.semitones / 12);
-    return {
-      intervals: CHORD_INTERVALS[s.chordType],
-      tonicFreq: freq,
-      bars: s.bars,
-      hitsPerBar: s.hitsPerBar,
-      label: s.label,
-    };
-  });
+): ResolvedStep[] {
+  return steps.map((s) => ({
+    label: s.label,
+    tonicFreq: tonicFreq * Math.pow(2, s.semitones / 12),
+    intervals: CHORD_INTERVALS[s.chordType],
+    bars: s.bars,
+    hitsPerBar: s.hitsPerBar,
+    beatsPerBar: s.beatsPerBar, // pass through
+  }));
 }

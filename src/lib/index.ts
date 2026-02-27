@@ -46,6 +46,7 @@ export {
   playScale,
   playChord,
   playChordProgression,
+  scheduleChordAtTime,
   chainNodes,
   durationToSeconds,
   applyEnvelope

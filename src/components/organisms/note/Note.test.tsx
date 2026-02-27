@@ -1,6 +1,6 @@
 import { render, fireEvent, cleanup } from "@solidjs/testing-library";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import NotePanel from "./NotePanel";
+import Note from "./Note";
 import { stubAudioContext, TestProviders } from "../../../context/test-utils";
 
 vi.mock("../../../lib", async (importOriginal) => {
@@ -21,17 +21,17 @@ afterEach(() => {
 
 const noop = () => {};
 
-describe("NotePanel", () => {
+describe("Note", () => {
   it("renders play button", () => {
     const { getByText } = render(() => (
-      <TestProviders><NotePanel onSelectionChange={noop} /></TestProviders>
+      <TestProviders><Note onSelectionChange={noop} /></TestProviders>
     ));
     expect(getByText("▶ play")).toBeInTheDocument();
   });
 
   it("renders pitch, waveform, duration and bpm controls", () => {
     const { getAllByRole } = render(() => (
-      <TestProviders><NotePanel onSelectionChange={noop} /></TestProviders>
+      <TestProviders><Note onSelectionChange={noop} /></TestProviders>
     ));
     const selects = getAllByRole("combobox");
     expect(selects.length).toBeGreaterThanOrEqual(3);
@@ -39,7 +39,7 @@ describe("NotePanel", () => {
 
   it("toggles to stop button when playing", () => {
     const { getByText } = render(() => (
-      <TestProviders><NotePanel onSelectionChange={noop} /></TestProviders>
+      <TestProviders><Note onSelectionChange={noop} /></TestProviders>
     ));
     fireEvent.click(getByText("▶ play"));
     expect(getByText("■ stop")).toBeInTheDocument();
@@ -47,7 +47,7 @@ describe("NotePanel", () => {
 
   it("returns to play button after playback ends", () => {
     const { getByText } = render(() => (
-      <TestProviders><NotePanel onSelectionChange={noop} /></TestProviders>
+      <TestProviders><Note onSelectionChange={noop} /></TestProviders>
     ));
     fireEvent.click(getByText("▶ play"));
     vi.runAllTimers();
@@ -56,7 +56,7 @@ describe("NotePanel", () => {
 
   it("stops playback when stop button is clicked", () => {
     const { getByText } = render(() => (
-      <TestProviders><NotePanel onSelectionChange={noop} /></TestProviders>
+      <TestProviders><Note onSelectionChange={noop} /></TestProviders>
     ));
     fireEvent.click(getByText("▶ play"));
     fireEvent.click(getByText("■ stop"));
@@ -66,7 +66,7 @@ describe("NotePanel", () => {
   it("calls onSelectionChange when pitch changes", () => {
     const handler = vi.fn();
     const { getAllByRole } = render(() => (
-      <TestProviders><NotePanel onSelectionChange={handler} /></TestProviders>
+      <TestProviders><Note onSelectionChange={handler} /></TestProviders>
     ));
     // Called on mount via createEffect
     expect(handler).toHaveBeenCalled();

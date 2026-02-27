@@ -25,7 +25,7 @@ describe("CustomProgressionBuilder", () => {
 
   it("removes a step when remove is clicked", () => {
     const [steps, setSteps] = createSignal<ProgressionStep[]>([
-      { label: "I", semitones: 0, chordType: "majorTriad", bars: 1, hitsPerBar: 1 },
+      { label: "I", semitones: 0, chordType: "majorTriad", bars: 1, hitsPerBar: 1, beatsPerBar: 4 },
     ]);
     const { getByLabelText } = render(() => (
       <CustomProgressionBuilder steps={steps()} onStepsChange={setSteps} />
@@ -36,8 +36,8 @@ describe("CustomProgressionBuilder", () => {
 
   it("renders step badges for existing steps", () => {
     const steps: ProgressionStep[] = [
-      { label: "I", semitones: 0, chordType: "majorTriad", bars: 1, hitsPerBar: 1 },
-      { label: "IV", semitones: 5, chordType: "majorTriad", bars: 1, hitsPerBar: 1 },
+      { label: "I", semitones: 0, chordType: "majorTriad", bars: 1, hitsPerBar: 1, beatsPerBar: 4 },
+      { label: "IV", semitones: 5, chordType: "majorTriad", bars: 1, hitsPerBar: 1, beatsPerBar: 4 },
     ];
     const { container } = render(() => (
       <CustomProgressionBuilder steps={steps} onStepsChange={() => {}} />

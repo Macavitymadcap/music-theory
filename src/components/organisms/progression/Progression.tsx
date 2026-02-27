@@ -1,4 +1,4 @@
-import { type Component, createSignal, createMemo, Switch, Match, createEffect, onCleanup } from "solid-js";
+import { type Component, createSignal, createMemo, Switch, Match, createEffect } from "solid-js";
 import { useAudio } from "../../../context/AudioContext";
 import { usePlayback } from "../../../context/PlaybackContext";
 import RadioGroup from "../../atoms/radio-group/RadioGroup";
@@ -9,8 +9,8 @@ import ProgressionControls from "../../molecules/progression-controls/Progressio
 import PresetProgression from "./PresetProgression";
 import CustomProgressionBuilder from "./CustomProgressionBuilder";
 import { PROGRESSION_PRESETS, resolveProgression, type ProgressionStep } from "../../../lib/progressions";
-import { getFrequencyFromName, playChordProgression, type WaveformType } from "../../../lib";
-import { TIME_SIGNATURES } from "../../../lib/duration";
+import { getFrequencyFromName, scheduleChordAtTime, type WaveformType } from "../../../lib";
+import type { NotationBar } from "../../../lib/notation";
 import "./Progression.css";
 
 const SUB_MODE_OPTIONS = [
@@ -20,6 +20,7 @@ const SUB_MODE_OPTIONS = [
 
 interface ProgressionProps {
   onSelectionChange: (frequencies: number[]) => void;
+  onNotationChange: (bars: NotationBar[]) => void;
 }
 
 const Progression: Component<ProgressionProps> = (props) => {
@@ -31,10 +32,11 @@ const Progression: Component<ProgressionProps> = (props) => {
   const [customSteps, setCustomSteps] = createSignal<ProgressionStep[]>([]);
 
   const [pitch, setPitch] = createSignal("c4");
-  const [octave, setOctave] = createSignal(4);
   const [repeats, setRepeats] = createSignal(1);
   const [waveform, setWaveform] = createSignal<WaveformType>("sine");
   const [bpm, setBpm] = createSignal(120);
+
+  let activeToken: { cancelled: boolean } | null = null;
 
   const activeSteps = createMemo<ProgressionStep[]>(() =>
     subMode() === "preset"
@@ -42,77 +44,103 @@ const Progression: Component<ProgressionProps> = (props) => {
       : customSteps()
   );
 
-  // Notify parent of full chord set for keyboard range
-  const allFrequencies = createMemo(() => {
+  createEffect(() => {
     const steps = activeSteps();
-    if (!steps.length) return [];
+    if (!steps.length) {
+      props.onSelectionChange([]);
+      props.onNotationChange([]);
+      return;
+    }
+
     const tonic = getFrequencyFromName(pitch());
-    return resolveProgression(steps, tonic).flatMap((r) =>
-      r.intervals.map((i) => r.tonicFreq * Math.pow(2, i / 12))
+    const resolved = resolveProgression(steps, tonic);
+
+    props.onSelectionChange(
+      resolved.flatMap((r) =>
+        r.intervals.map((i) => r.tonicFreq * Math.pow(2, i / 12))
+      )
+    );
+
+    props.onNotationChange(
+      resolved.map((r, i) => ({
+        chords: [r.intervals.map((int) => r.tonicFreq * Math.pow(2, int / 12))],
+        timeSignature: i === 0 ? `${r.beatsPerBar ?? 4}/4` : undefined,
+        bars: r.bars,
+      }))
     );
   });
 
-  createEffect(() => props.onSelectionChange(allFrequencies())); 
-  
+  function stopPlayback() {
+    if (activeToken) {
+      activeToken.cancelled = true;
+      activeToken = null;
+    }
+    playback.stop();
+  }
+
   function play() {
-    if (playback.isPlaying()) { playback.stop(); return; }
+    if (playback.isPlaying()) {
+      stopPlayback();
+      return;
+    }
     if (!activeSteps().length) return;
 
     const ctx = audio.getAudioContext();
     const tonic = getFrequencyFromName(pitch());
     const resolved = resolveProgression(activeSteps(), tonic);
-    const msPerBar = (60 / bpm()) * 4 * 1000;
+    const currentBpm = bpm();
+    const currentWaveform = waveform();
+    const currentRepeats = repeats();
 
     const sequence: { freqs: number[]; durationMs: number }[] = [];
-    for (let rep = 0; rep < repeats(); rep++) {
+    let audioTime = ctx.currentTime + 0.05;
+
+    for (let rep = 0; rep < currentRepeats; rep++) {
       for (const r of resolved) {
-        const hitDurationMs = (msPerBar * r.bars) / r.hitsPerBar;
-        for (let h = 0; h < r.hitsPerBar; h++) {
-          const freqs = r.intervals.map((i) => r.tonicFreq * Math.pow(2, i / 12));
-          sequence.push({ freqs, durationMs: hitDurationMs });
+        const msPerBeat = 60000 / currentBpm;
+        const msPerBar = msPerBeat * (r.beatsPerBar ?? 4);
+        // Each hit lasts one bar divided by hitsPerBar
+        const hitMs = msPerBar / r.hitsPerBar;
+        const hitSeconds = hitMs / 1000;
+        const freqs = r.intervals.map((i) => r.tonicFreq * Math.pow(2, i / 12));
+        // Total hits = bars × hitsPerBar (4 bars × 1 hit/bar = 4 hits)
+        const totalHits = r.bars * r.hitsPerBar;
+
+        for (let h = 0; h < totalHits; h++) {
+          scheduleChordAtTime(freqs, audioTime, hitSeconds, {
+            context: ctx,
+            waveform: currentWaveform,
+            gain: 0.35,
+          });
+          sequence.push({ freqs, durationMs: hitMs });
+          audioTime += hitSeconds;
         }
       }
     }
 
-    // Map resolved steps to Chord objects
-    const chords = resolved.map((step) => ({
-      notes: step.intervals.map((i) => ({
-        frequency: step.tonicFreq * Math.pow(2, i / 12),
-        value: 1, // quarter note = 1 beat; adjust as needed
-      })),
-      length: step.bars,
-      label: step.label,
-    }));
+    if (!sequence.length) return;
 
-    playChordProgression(chords, {
-      context: ctx,
-      waveform: waveform(),
-      bpm: bpm(),
-      gain: 0.35,
-      timeSignature: TIME_SIGNATURES.FOUR_FOUR,
-    });
+    const token = { cancelled: false };
+    activeToken = token;
 
-    // cancelled becomes true when stop() is called externally
-    let cancelled = false;
-    const cancel = () => { cancelled = true; };
-    onCleanup(cancel);
+    // start() once to set isPlaying — subsequent updates use updateFrequencies()
+    // to avoid stop/start cycling in PlaybackContext
+    playback.start({ type: "instant", frequencies: sequence[0].freqs });
 
-    let idx = 0;
+    let idx = 1;
 
-    function step() {
-      if (cancelled || !playback.isPlaying()) return;
+    function tick() {
+      if (token.cancelled || !playback.isPlaying()) return;
       if (idx >= sequence.length) {
-        playback.stop();
+        stopPlayback();
         return;
       }
       const { freqs, durationMs } = sequence[idx++];
-      playback.start({ type: "instant", frequencies: freqs });
-      setTimeout(step, durationMs);
+      playback.updateFrequencies(freqs);
+      setTimeout(tick, durationMs);
     }
 
-    playback.start({ type: "instant", frequencies: sequence[0].freqs });
-    idx = 1;
-    setTimeout(step, sequence[0].durationMs);
+    setTimeout(tick, sequence[0].durationMs);
   }
 
   return (
@@ -124,7 +152,7 @@ const Progression: Component<ProgressionProps> = (props) => {
           options={SUB_MODE_OPTIONS}
           value={subMode()}
           onChange={(v) => {
-            playback.stop();
+            stopPlayback();
             setSubMode(v as "preset" | "custom");
           }}
         />
@@ -141,7 +169,6 @@ const Progression: Component<ProgressionProps> = (props) => {
 
       <ProgressionControls
         pitch={pitch()} onPitchChange={setPitch}
-        octave={octave()} onOctaveChange={setOctave}
         repeats={repeats()} onRepeatsChange={setRepeats}
         waveform={waveform()} onWaveformChange={setWaveform}
         bpm={bpm()} onBpmChange={setBpm}

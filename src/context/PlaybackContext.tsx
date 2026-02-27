@@ -15,6 +15,9 @@ interface PlaybackContextValue {
   isPlaying: () => boolean;
   currentFrequencies: () => number[];
   start: (sequence: PlaybackSequence, onEnd?: () => void) => void;
+  /** Update highlighted frequencies without interrupting playback state.
+   *  Used by Progression to animate chord changes without stop/start cycling. */
+  updateFrequencies: (frequencies: number[]) => void;
   stop: () => void;
 }
 
@@ -41,15 +44,24 @@ export const PlaybackProvider: ParentComponent = (props) => {
     setCurrentFrequencies([]);
   }
 
+  function updateFrequencies(frequencies: number[]) {
+    // Only update the visual highlight — does not touch playing state or audio
+    setCurrentFrequencies(frequencies);
+  }
+
   function start(sequence: PlaybackSequence, onEnd?: () => void) {
-    if (isPlaying()) stop();
+    // Stop any existing managed sequence (scale/note/chord modes)
+    // but don't call the full stop() which suspends audio —
+    // just clear timers and reset state
+    clearTimers();
+    setIsPlaying(false);
+    setCurrentFrequencies([]);
 
     audio.getAudioContext(); // ensure context is created and resumed
     setIsPlaying(true);
 
     if (sequence.type === "instant") {
       setCurrentFrequencies(sequence.frequencies);
-
     } else {
       // Sequential — step through frequencies on a timer (scales)
       let idx = 0;
@@ -72,7 +84,7 @@ export const PlaybackProvider: ParentComponent = (props) => {
   onCleanup(stop);
 
   return (
-    <PlaybackCtx.Provider value={{ isPlaying, currentFrequencies, start, stop }}>
+    <PlaybackCtx.Provider value={{ isPlaying, currentFrequencies, start, updateFrequencies, stop }}>
       {props.children}
     </PlaybackCtx.Provider>
   );

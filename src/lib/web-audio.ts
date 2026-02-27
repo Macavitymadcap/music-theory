@@ -138,6 +138,48 @@ export function playChord(chord: Chord, options: PlayOptions): number {
 }
 
 /**
+ * Schedule a chord to play at an absolute AudioContext time for a given duration in seconds.
+ */
+export function scheduleChordAtTime(
+  frequencies: number[],
+  startTime: number,
+  durationSeconds: number,
+  options: PlayOptions
+): OscillatorNode[] {
+  const {
+    context,
+    destination = context.destination,
+    waveform = "sine",
+    gain = 0.3,
+  } = options;
+
+  const nodes: OscillatorNode[] = [];
+
+  for (const freq of frequencies) {
+    const osc = context.createOscillator();
+    osc.type = waveform;
+    osc.frequency.setValueAtTime(freq, startTime);
+
+    const gainNode = context.createGain();
+    const masterGain = context.createGain();
+    masterGain.gain.setValueAtTime(gain, startTime);
+
+    applyEnvelope(gainNode, startTime, durationSeconds);
+
+    osc.connect(gainNode);
+    gainNode.connect(masterGain);
+    masterGain.connect(destination);
+
+    osc.start(startTime);
+    osc.stop(startTime + durationSeconds);
+
+    nodes.push(osc);
+  }
+
+  return nodes;
+}
+
+/**
  * Play a sequence of chords. Each chord plays for its note duration then advances.
  * Returns total duration in seconds.
  */
