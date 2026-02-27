@@ -51,15 +51,21 @@ export interface NotationBar {
   label?: string;
   /** How many musical bars this step spans */
   bars?: number;
+  /** Override note count for duration calculation (e.g. scale with 7 notes) */
+  noteCount?: number;
+  /** Explicit VexFlow duration string — overrides getDuration calculation */
+  forceDuration?: string;
 }
 
 // Layout constants
-const MIN_BAR_PX = 120;   // minimum width per musical bar
-const CLEF_PX = 40;       // extra width for clef on first bar of each row
-const ROW_HEIGHT = 110;   // px per row (stave + label clearance)
-const STAVE_Y_OFFSET = 25; // stave top within each row
-const LABEL_Y_OFFSET = 90; // label baseline within each row
-const H_PADDING = 10;     // left margin
+const MIN_BAR_PX = 120;     // minimum width per musical bar
+const CLEF_PX = 40;         // extra stave width for clef on first bar of each row
+const TIME_SIG_PX = 30;     // approximate width consumed by a time signature
+const NOTE_AREA_MARGIN = 15; // breathing room at end of note area
+const ROW_HEIGHT = 110;     // px per row (stave + label clearance)
+const STAVE_Y_OFFSET = 25;  // stave top within each row
+const LABEL_Y_OFFSET = 90;  // label baseline within each row
+const H_PADDING = 10;       // left margin
 
 /**
  * Render notation into a container using VexFlow.
@@ -78,12 +84,13 @@ export function renderNotation(
   const containerWidth = options.width ?? container.clientWidth ?? 600;
   const usableWidth = containerWidth - H_PADDING * 2;
 
-  const slots = expandNotationBars(bars);
-  const idealBarWidth = getIdealBarWidth(usableWidth, slots.length);
+  // Layout pass: assign each bar to a row
+  const slots = createBarSlots(bars);
+  const idealBarWidth = calculateIdealBarWidth(bars, slots.length, usableWidth);
   const rows = packSlotsIntoRows(slots, idealBarWidth, containerWidth);
 
+  // Render pass
   const totalHeight = rows.length * ROW_HEIGHT + 20;
-
   const renderer = new Renderer(container, Renderer.Backends.SVG);
   renderer.resize(containerWidth, totalHeight);
   const context = renderer.getContext();
@@ -91,11 +98,10 @@ export function renderNotation(
 
   renderRows(rows, context, idealBarWidth);
 
-  return () => {
-    while (container.firstChild) container.firstChild.remove();
-  };
+  return cleanupContainer(container);
 }
 
+// Helper to expand NotationBar entries into BarSlot objects
 interface BarSlot {
   notationBar: NotationBar;
   barIndex: number;
@@ -105,9 +111,7 @@ interface BarSlot {
   timeSignature: string;
 }
 
-interface Row { slots: BarSlot[]; }
-
-function expandNotationBars(bars: NotationBar[]): BarSlot[] {
+function createBarSlots(bars: NotationBar[]): BarSlot[] {
   const slots: BarSlot[] = [];
   for (const nb of bars) {
     const span = nb.bars ?? 1;
@@ -125,31 +129,43 @@ function expandNotationBars(bars: NotationBar[]): BarSlot[] {
   return slots;
 }
 
-function getIdealBarWidth(usableWidth: number, slotCount: number): number {
+// Helper to calculate ideal bar width
+function calculateIdealBarWidth(
+  bars: NotationBar[],
+  slotCount: number,
+  usableWidth: number
+): number {
+  const maxNoteCount = Math.max(...bars.map(b => b.noteCount ?? b.chords.length));
+  const effectiveMinBarPx = maxNoteCount > 4
+    ? Math.max(MIN_BAR_PX, CLEF_PX + TIME_SIG_PX + maxNoteCount * 35)
+    : MIN_BAR_PX;
   return Math.max(
-    MIN_BAR_PX,
+    effectiveMinBarPx,
     Math.floor((usableWidth - CLEF_PX) / slotCount)
   );
 }
 
-function packSlotsIntoRows(slots: BarSlot[], idealBarWidth: number, containerWidth: number): Row[] {
+// Helper to pack slots into rows
+interface Row { slots: BarSlot[]; }
+function packSlotsIntoRows(
+  slots: BarSlot[],
+  idealBarWidth: number,
+  containerWidth: number
+): Row[] {
   const rows: Row[] = [];
   let currentRow: BarSlot[] = [];
   let currentRowWidth = CLEF_PX + H_PADDING;
 
   for (const slot of slots) {
     const slotWidth = idealBarWidth;
-
     if (currentRow.length > 0 && currentRowWidth + slotWidth > containerWidth) {
       rows.push({ slots: currentRow });
       currentRow = [];
       currentRowWidth = CLEF_PX + H_PADDING;
     }
-
     if (currentRow.length === 0) {
       slot.isFirstInRow = true;
     }
-
     currentRow.push(slot);
     currentRowWidth += slotWidth;
   }
@@ -157,21 +173,21 @@ function packSlotsIntoRows(slots: BarSlot[], idealBarWidth: number, containerWid
   return rows;
 }
 
+// Helper to render all rows
 function renderRows(rows: Row[], context: any, idealBarWidth: number) {
   for (let rowIdx = 0; rowIdx < rows.length; rowIdx++) {
     const row = rows[rowIdx];
     const rowY = rowIdx * ROW_HEIGHT;
     let xOffset = H_PADDING;
-
     for (let slotIdx = 0; slotIdx < row.slots.length; slotIdx++) {
-      const slot = row.slots[slotIdx];
-      renderBar(slot, slotIdx, xOffset, rowY, context, idealBarWidth);
+      renderSlot(row.slots[slotIdx], slotIdx, xOffset, rowY, context, idealBarWidth);
       xOffset += idealBarWidth + (slotIdx === 0 ? CLEF_PX : 0);
     }
   }
 }
 
-function renderBar(
+// Helper to render a single slot
+function renderSlot(
   slot: BarSlot,
   slotIdx: number,
   xOffset: number,
@@ -181,7 +197,6 @@ function renderBar(
 ) {
   const isFirstInRow = slotIdx === 0;
   const staveWidth = idealBarWidth + (isFirstInRow ? CLEF_PX : 0);
-
   const stave = new Stave(xOffset, rowY + STAVE_Y_OFFSET, staveWidth);
   if (isFirstInRow) stave.addClef("treble");
   if (slot.isFirst && slot.notationBar.timeSignature) {
@@ -198,25 +213,51 @@ function renderBar(
   }
 
   if (slot.notationBar.chords.length > 0) {
-    const [beatsNum] = slot.timeSignature.split("/").map(Number);
-    const duration = getDuration(slot.notationBar.chords.length, beatsNum);
-
-    const staveNotes = slot.notationBar.chords.map((freqs) =>
-      frequenciesToStaveNote(freqs, duration)
-    );
-
-    const voice = new Voice({ numBeats: beatsNum, beatValue: 4 }).setStrict(false);
-    voice.addTickables(staveNotes);
-
-    new Formatter()
-      .joinVoices([voice])
-      .format([voice], staveWidth - 25);
-    voice.draw(context, stave);
+    renderNotes(slot, isFirstInRow, staveWidth, context, stave);
   }
+}
+
+// Helper to render notes in a slot
+function renderNotes(
+  slot: BarSlot,
+  isFirstInRow: boolean,
+  staveWidth: number,
+  context: any,
+  stave: any
+) {
+  const [beatsNum] = slot.timeSignature.split("/").map(Number);
+  const duration = slot.notationBar.forceDuration ?? getDuration(
+    slot.notationBar.noteCount ?? slot.notationBar.chords.length,
+    beatsNum
+  );
+  const staveNotes = slot.notationBar.chords.map((freqs) =>
+    frequenciesToStaveNote(freqs, duration)
+  );
+  const voice = new Voice({ numBeats: beatsNum, beatValue: 4 }).setStrict(false);
+  voice.addTickables(staveNotes);
+
+  const noteAreaWidth = staveWidth
+    - (isFirstInRow ? CLEF_PX : 0)
+    - (slot.isFirst && slot.notationBar.timeSignature ? TIME_SIG_PX : 0)
+    - NOTE_AREA_MARGIN;
+  new Formatter()
+    .joinVoices([voice])
+    .format([voice], Math.max(50, noteAreaWidth));
+  voice.draw(context, stave);
+}
+
+// Helper for cleanup
+function cleanupContainer(container: HTMLDivElement): () => void {
+  return () => {
+    while (container.firstChild) container.firstChild.remove();
+  };
 }
 
 /** Pick note duration to fill the available beats in a single bar */
 function getDuration(chordCount: number, beatsPerBar: number): string {
+  // For scales (>4 notes in a 4/4 bar), always use 8th notes — cleaner than
+  // trying to divide 4 beats by 7 or 8 unevenly
+  if (chordCount > 4 && beatsPerBar === 4) return "8";
   const beatsPerChord = beatsPerBar / chordCount;
   if (beatsPerChord >= 4) return "w";
   if (beatsPerChord >= 3) return "hd";

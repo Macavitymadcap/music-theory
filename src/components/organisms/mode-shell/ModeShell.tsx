@@ -27,22 +27,13 @@ const ModeShell: Component = () => {
 
   const [selectionFrequencies, setSelectionFrequencies] = createSignal<number[]>([]);
   const [progressionBars, setProgressionBars] = createSignal<NotationBar[]>([]);
+  const [scaleBars, setScaleBars] = createSignal<NotationBar[]>([]);
 
   const notationBars = createMemo<NotationBar[]>(() => {
     if (mode() === "progression") return progressionBars();
+    if (mode() === "scale") return scaleBars();
     const freqs = selectionFrequencies();
     if (!freqs.length) return [];
-    if (mode() === "scale") {
-      // Split scale notes into bars of 4, time signature on first bar only
-      const scaleBars: NotationBar[] = [];
-      for (let i = 0; i < freqs.length; i += 4) {
-        scaleBars.push({
-          chords: freqs.slice(i, i + 4).map((f) => [f]),
-          timeSignature: i === 0 ? "4/4" : undefined,
-        });
-      }
-      return scaleBars;
-    }
     // note and chord: all frequencies as one simultaneous chord
     return [{ chords: [freqs], timeSignature: "4/4" }];
   });
@@ -69,7 +60,7 @@ const ModeShell: Component = () => {
           <Note onSelectionChange={setSelectionFrequencies} />
         </Match>
         <Match when={mode() === "scale"}>
-          <Scale onSelectionChange={setSelectionFrequencies} />
+          <Scale onSelectionChange={setSelectionFrequencies} onNotationChange={setScaleBars} />
         </Match>
         <Match when={mode() === "chord"}>
           <Chord onSelectionChange={setSelectionFrequencies} />
