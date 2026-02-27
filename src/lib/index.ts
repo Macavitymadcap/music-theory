@@ -47,6 +47,8 @@ export {
   playChord,
   playChordProgression,
   chainNodes,
+  durationToSeconds,
+  applyEnvelope
 } from "./web-audio";
 
 export {

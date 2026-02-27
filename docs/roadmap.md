@@ -106,21 +106,21 @@
 ### Tasks
 
 **Shared**
-- [ ] Create `src/context/AudioContext.tsx` — SolidJS context providing `getAudioContext()` and `stopPlayback()`. Manages the single `AudioContext` instance.
-- [ ] Create `src/context/PlaybackContext.tsx` — provides `isPlaying`, `currentFrequencies`, `startPlayback(fn)`, `stop()`. `currentFrequencies` drives the piano highlight.
+- [x] Create `src/context/AudioContext.tsx` — SolidJS context providing `getAudioContext()` and `stopPlayback()`. Manages the single `AudioContext` instance.
+- [x] Create `src/context/PlaybackContext.tsx` — provides `isPlaying`, `currentFrequencies`, `startPlayback(fn)`, `stop()`. `currentFrequencies` drives the piano highlight.
 
 **Panels** — each in `src/components/panels/`
-- [ ] `NotePanel.tsx` — pitch select, waveform select, duration select, BPM. On play: schedules single note, sets `currentFrequencies` for piano.
-- [ ] `ScalePanel.tsx` — pitch select, scale grouped-select, waveform, duration, BPM. On play: schedules scale, steps `currentFrequencies` through notes sequentially on a timer (this is the correct fix for scale highlight).
-- [ ] `ChordPanel.tsx` — pitch select, chord grouped-select, waveform, duration, BPM. On play: schedules chord, sets all note frequencies at once.
+- [x] `NotePanel.tsx` — pitch select, waveform select, duration select, BPM. On play: schedules single note, sets `currentFrequencies` for piano.
+- [x] `ScalePanel.tsx` — pitch select, scale grouped-select, waveform, duration, BPM. On play: schedules scale, steps `currentFrequencies` through notes sequentially on a timer (this is the correct fix for scale highlight).
+- [x] `ChordPanel.tsx` — pitch select, chord grouped-select, waveform, duration, BPM. On play: schedules chord, sets all note frequencies at once.
 
 **Mode shell**
-- [ ] Create `src/components/organisms/ModeShell.tsx` — renders the `RadioGroup` mode selector, conditionally renders the active panel via `<Switch>/<Match>`, and renders `<PianoKeyboard>` below with `currentFrequencies` from context.
+- [x] Create `src/components/organisms/ModeShell.tsx` — renders the `RadioGroup` mode selector, conditionally renders the active panel via `<Switch>/<Match>`, and renders `<PianoKeyboard>` below with `currentFrequencies` from context.
 
 **Tests**
-- [ ] Test that each panel calls the correct `lib` function with the correct arguments (mock `web-audio.ts`).
-- [ ] Test that `currentFrequencies` is set correctly for each mode.
-- [ ] Test that scale panel steps through frequencies correctly.
+- [x] Test that each panel calls the correct `lib` function with the correct arguments (mock `web-audio.ts`).
+- [x] Test that `currentFrequencies` is set correctly for each mode.
+- [x] Test that scale panel steps through frequencies correctly.
 
 ### Acceptance Criteria
 - All three modes play back correctly.

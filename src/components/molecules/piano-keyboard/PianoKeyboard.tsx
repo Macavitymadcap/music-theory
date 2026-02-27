@@ -10,20 +10,20 @@ import "./PianoKeyboard.css";
 
 interface PianoKeyboardProps {
   highlightedFrequencies: number[];
+  rangeFrequencies: number[];
 }
 
 const PianoKeyboard: Component<PianoKeyboardProps> = (props) => {
-  // Derive active MIDI set from frequencies
   const activeMidis = createMemo(() =>
     new Set(props.highlightedFrequencies.map(frequencyToMidi))
   );
 
-  // Derive MIDI range from active midis — only changes when range shifts
-  const range = createMemo(() => computeMidiRange([...activeMidis()]));
+  // Range driven only by rangeFrequencies — never by highlighted
+  const range = createMemo(() =>
+    computeMidiRange(props.rangeFrequencies.map(frequencyToMidi))
+  );
 
-  // Derive key descriptors — only changes when range changes
   const keys = createMemo(() => buildKeyDescriptors(range().low, range().high));
-
   const whiteCount = createMemo(() => keys().whiteKeys.length);
 
   return (
