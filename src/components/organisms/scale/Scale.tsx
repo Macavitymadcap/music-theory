@@ -23,7 +23,7 @@ import type { NotationBar } from "../../../lib/notation";
 
 interface ScaleProps {
   onSelectionChange: (frequencies: number[]) => void;
-  onNotationChange: (bars: NotationBar[]) => void;
+  onNotationChange?: (bars: NotationBar[]) => void; // Make optional
 }
 
 const SCALE_GROUPS_FOR_SELECT = SCALE_GROUPS.map((g) => ({
@@ -60,12 +60,14 @@ const Scale: Component<ScaleProps> = (props) => {
     const vexDur = durationToVex(duration());
 
     props.onSelectionChange(freqs);
-    props.onNotationChange([{
-      chords: freqs.map((f) => [f]),
-      timeSignature: "4/4",
-      noteCount: freqs.length,
-      forceDuration: vexDur,
-    }]);
+    if (props.onNotationChange) {
+      props.onNotationChange([{
+        chords: freqs.map((f) => [f]),
+        timeSignature: "4/4",
+        noteCount: freqs.length,
+        forceDuration: vexDur,
+      }]);
+    }
   });
 
   const intervalMs = createMemo(() =>

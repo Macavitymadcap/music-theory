@@ -31,11 +31,8 @@ const ModeShell: Component = () => {
 
   const notationBars = createMemo<NotationBar[]>(() => {
     if (mode() === "progression") return progressionBars();
-    if (mode() === "scale") return scaleBars();
-    const freqs = selectionFrequencies();
-    if (!freqs.length) return [];
-    // note and chord: all frequencies as one simultaneous chord
-    return [{ chords: [freqs], timeSignature: "4/4" }];
+    // For note, scale, chord: always use scaleBars (set by panel's onNotationChange)
+    return scaleBars();
   });
 
   return (
@@ -57,13 +54,22 @@ const ModeShell: Component = () => {
 
       <Switch>
         <Match when={mode() === "note"}>
-          <Note onSelectionChange={setSelectionFrequencies} />
+          <Note
+            onSelectionChange={setSelectionFrequencies}
+            onNotationChange={setScaleBars} // Use setScaleBars for note/chord notation
+          />
         </Match>
         <Match when={mode() === "scale"}>
-          <Scale onSelectionChange={setSelectionFrequencies} onNotationChange={setScaleBars} />
+          <Scale
+            onSelectionChange={setSelectionFrequencies}
+            onNotationChange={setScaleBars}
+          />
         </Match>
         <Match when={mode() === "chord"}>
-          <Chord onSelectionChange={setSelectionFrequencies} />
+          <Chord
+            onSelectionChange={setSelectionFrequencies}
+            onNotationChange={setScaleBars}
+          />
         </Match>
         <Match when={mode() === "progression"}>
           <Progression

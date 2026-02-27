@@ -23,9 +23,23 @@ import BpmInput from "../../molecules/BpmInput";
 import DurationSelect from "../../molecules/DurationSelect";
 import PitchSelect from "../../molecules/PitchSelect";
 import WaveformSelect from "../../molecules/WaveformSelect";
+import { NotationBar } from "../../../lib/notation";
+
+
+// Map Duration value to VexFlow duration string
+function durationToVex(d: Duration): string {
+  if (d >= 1) return "w";
+  if (d >= 0.75) return "hd";
+  if (d >= 0.5) return "h";
+  if (d >= 0.375) return "qd";
+  if (d >= 0.25) return "q";
+  if (d >= 0.125) return "8";
+  return "16";
+}
 
 interface ChordProps {
   onSelectionChange: (frequencies: number[]) => void;
+  onNotationChange?: (bars: NotationBar[]) => void; // Add optional prop
 }
 
 const CHORD_GROUPS_FOR_SELECT = CHORD_GROUPS.map((g) => ({
@@ -46,7 +60,15 @@ const Chord: Component<ChordProps> = (props) => {
   createEffect(() => {
     const tonic = getFrequencyFromName(pitch());
     const chord = createChord(chordType(), tonic, DURATIONS.CROTCHET);
-    props.onSelectionChange(chord.notes.map((n) => n.frequency));
+    const freqs = chord.notes.map((n) => n.frequency);
+    props.onSelectionChange(freqs);
+    if (props.onNotationChange) {
+      props.onNotationChange([{
+        chords: [freqs],
+        timeSignature: "4/4",
+        forceDuration: durationToVex(duration()),
+      }]);
+    }
   });
 
   function play() {

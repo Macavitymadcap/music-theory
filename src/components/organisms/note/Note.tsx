@@ -15,9 +15,21 @@ import BpmInput from "../../molecules/BpmInput";
 import DurationSelect from "../../molecules/DurationSelect";
 import PitchSelect from "../../molecules/PitchSelect";
 import WaveformSelect from "../../molecules/WaveformSelect";
+import type { NotationBar } from "../../../lib/notation";
+
+function durationToVex(d: Duration): string {
+  if (d >= 1) return "w";
+  if (d >= 0.75) return "hd";
+  if (d >= 0.5) return "h";
+  if (d >= 0.375) return "qd";
+  if (d >= 0.25) return "q";
+  if (d >= 0.125) return "8";
+  return "16";
+}
 
 interface NotePanelProps {
   onSelectionChange: (frequencies: number[]) => void;
+  onNotationChange?: (bars: NotationBar[]) => void; // Add optional prop
 }
 
 const Note: Component<NotePanelProps> = (props) => {
@@ -33,6 +45,13 @@ const Note: Component<NotePanelProps> = (props) => {
   createEffect(() => {
     const freq = getFrequencyFromName(pitch());
     props.onSelectionChange([freq]);
+    if (props.onNotationChange) {
+      props.onNotationChange([{
+        chords: [[freq]],
+        timeSignature: "4/4",
+        forceDuration: durationToVex(duration()),
+      }]);
+    }
   })
 
   function handlePitchChange(v:string) {
