@@ -7,7 +7,8 @@
  */
 
 import { For } from "solid-js";
-import { INTERVALS } from "../../lib/cheat-sheets";
+import { INTERVALS } from "../../../lib/cheat-sheets";
+import "./IntervalReference.css"
 
 function consonanceClass(c: string): string {
   if (c === "perfect") return "interval-ref__row--perfect";

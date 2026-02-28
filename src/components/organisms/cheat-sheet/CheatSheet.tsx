@@ -1,10 +1,10 @@
 import { createSignal, Match, Switch } from "solid-js";
 import "./CheatSheet.css";
 import CircleOfFifths from "../../molecules/circle-of-fifths/CircleOfFifths";
-import IntervalReference from "../../molecules/IntervalReference";
-import KeySignatures from "../../molecules/KeySignatures";
+import IntervalReference from "../../molecules/interval-reference/IntervalReference";
+import KeySignatures from "../../molecules/key-signatures/KeySignatures";
 import NoteReading from "../../molecules/note-reading/NoteReading";
-import ScaleDegrees from "../../molecules/ScaleDegrees";
+import ScaleDegrees from "../../molecules/scale-degrees/ScaleDegrees";
 import RadioGroup from "../../atoms/radio-group/RadioGroup";
 import Field from "../../atoms/field/Field";
 import Label from "../../atoms/label/Label";

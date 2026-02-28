@@ -11,7 +11,8 @@
  */
 
 import { For } from "solid-js";
-import { SCALE_DEGREES } from "../../lib/cheat-sheets";
+import { SCALE_DEGREES } from "../../../lib/cheat-sheets";
+import "./ScaleDegrees.css";
 
 const QUALITY_LABELS: Record<string, string> = {
   major: "maj",

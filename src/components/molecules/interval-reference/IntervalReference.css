@@ -1,0 +1,67 @@
+/* Interval Reference */
+.interval-ref__legend-item--perfect {
+  background: rgba(74, 222, 128, 0.15); /* green tint */
+  color: var(--accent);
+}
+
+.interval-ref__legend-item--imperfect {
+  background: rgba(74, 222, 128, 0.08); /* lighter green tint */
+  color: var(--accent);
+}
+
+.interval-ref__legend-item--dissonant {
+  background: var(--surface-raised);
+  color: var(--text-muted);
+}
+
+.interval-ref__row--perfect td:first-child {
+  border-left: 3px solid var(--accent);
+}
+.interval-ref__row--imperfect td:first-child {
+  border-left: 3px solid var(--accent-dim);
+}
+.interval-ref__row--dissonant td:first-child {
+  border-left: 3px solid transparent;
+}
+
+.interval-ref__semitones {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 2ch;
+}
+
+.interval-ref__short {
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 4ch;
+}
+
+.interval-ref__name {
+  color: var(--text);
+}
+
+.interval-ref__example {
+  color: var(--text-muted);
+  font-size: var(--font-size-xs, 0.75rem);
+}
+
+.interval-ref__bar-cell {
+  width: 80px;
+  padding-right: var(--space-3, 0.75rem) !important;
+}
+
+.interval-ref__bar {
+  height: 6px;
+  background: var(--accent);
+  border-radius: 3px;
+  opacity: 0.6;
+  min-width: 2px;
+}
+
+.interval-ref__legend {
+  display: flex;
+  gap: var(--space-2, 0.5rem);
+  margin-bottom: var(--space-3, 0.75rem);
+  align-items: center;
+}
