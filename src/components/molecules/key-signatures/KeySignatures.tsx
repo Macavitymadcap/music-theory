@@ -3,8 +3,8 @@ import { KEY_SIGNATURES } from "../../../lib/cheat-sheets";
 import Field from "../../atoms/field/Field";
 import Label from "../../atoms/label/Label";
 import RadioGroup from "../../atoms/radio-group/RadioGroup";
-import StaffSVG from "../../atoms/StaffSvg";
 import "./KeySignatures.css";
+import StaffSVG from "../../atoms/StaffSVG";
 
 const FILTERS = [
   { value: "all", label: "All keys" },
