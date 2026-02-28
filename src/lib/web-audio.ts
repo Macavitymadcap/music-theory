@@ -23,7 +23,7 @@ interface PlayOptions {
  * Convert a note's duration (fraction of a whole note) to seconds at a given BPM.
  * In 4/4 time, a whole note = 4 beats. At 120 BPM, one beat = 0.5s.
  */
-export function durationToSeconds(value: number, bpm: number, timeSignature: number): number {
+export function durationToSeconds(value: number, bpm: number, timeSignature: TimeSignature): number {
   const secondsPerBeat = 60 / bpm;
   const beatsForNote = value * timeSignature;
   return beatsForNote * secondsPerBeat;
@@ -65,7 +65,7 @@ export function scheduleNote(
     waveform = "sine",
     bpm = 120,
     gain = 0.3,
-    timeSignature = 4,
+    timeSignature = TIME_SIGNATURES.FOUR_FOUR,
   } = options;
 
   const duration = durationToSeconds(note.value, bpm, timeSignature);
@@ -113,7 +113,7 @@ export function scheduleChord(
  * Play a scale sequentially. Returns total duration in seconds.
  */
 export function playScale(notes: Note[], options: PlayOptions): number {
-  const { bpm = 120, timeSignature = 4 } = options;
+  const { bpm = 120, timeSignature = TIME_SIGNATURES.FOUR_FOUR } = options;
   let currentTime = options.context.currentTime;
 
   for (const note of notes) {
@@ -129,7 +129,7 @@ export function playScale(notes: Note[], options: PlayOptions): number {
  */
 export function playChord(chord: Chord, options: PlayOptions): number {
   const startTime = options.context.currentTime;
-  const { bpm = 120, timeSignature = 4 } = options;
+  const { bpm = 120, timeSignature = TIME_SIGNATURES.FOUR_FOUR } = options;
 
   scheduleChord(chord, startTime, options);
 

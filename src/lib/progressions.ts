@@ -240,7 +240,7 @@ export function resolveProgression(
   return steps.map((s) => ({
     label: s.label,
     tonicFreq: tonicFreq * Math.pow(2, s.semitones / 12),
-    intervals: CHORD_INTERVALS[s.chordType],
+    intervals: [...CHORD_INTERVALS[s.chordType]],
     bars: s.bars,
     hitsPerBar: s.hitsPerBar,
     beatsPerBar: s.beatsPerBar, // pass through
