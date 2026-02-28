@@ -2,7 +2,7 @@
   display: flex;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  overflow: hidden;
+  overflow: scroll;
 }
 
 .radio-group input[type="radio"] {

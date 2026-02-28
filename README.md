@@ -14,6 +14,7 @@ An interactive browser-based music theory tool. Explore notes, scales, chords an
 - **Progression mode** — 12 curated presets (pop, blues, jazz, modal) plus a custom builder; each chord highlights as it plays.
 - **VexFlow notation** — live staff notation for all four modes; progressions display one bar per chord.
 - **Reactive piano keyboard** — range adjusts to the selection; highlights track playback in real time.
+- **Interactive Cheat Sheets** - the Circle of Fifths, reading sheet music, intervals and other concepts explained with interactive elements.
 
 ---
 

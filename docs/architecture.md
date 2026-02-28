@@ -13,6 +13,7 @@ A browser-based music theory learning tool with four interactive modes:
 - **Scale** — play a scale sequentially, with per-note piano highlight
 - **Chord** — play all chord notes simultaneously
 - **Progression** — play multi-chord sequences with per-chord piano highlight
+- **Cheat Sheets** Interactive tables, graphs and music notation for music theory concepts
 
 Each mode renders:
 1. A control panel (pitch/type selectors, waveform, duration, BPM)
