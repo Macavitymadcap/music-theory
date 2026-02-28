@@ -35,6 +35,7 @@ const Progression: Component<ProgressionProps> = (props) => {
   const [repeats, setRepeats] = createSignal(1);
   const [waveform, setWaveform] = createSignal<WaveformType>("sine");
   const [bpm, setBpm] = createSignal(120);
+  const [keySig, setKeySig] = createSignal("C");
 
   let activeToken: { cancelled: boolean } | null = null;
 
@@ -44,15 +45,20 @@ const Progression: Component<ProgressionProps> = (props) => {
       : customSteps()
   );
 
+  // Read ALL reactive signals at the top of createEffect so SolidJS tracks them.
+  // keySig() must be read here — if it's only accessed inside .map() further
+  // down, it is still tracked, but being explicit at the top makes it obvious.
   createEffect(() => {
     const steps = activeSteps();
+    const tonic = getFrequencyFromName(pitch());
+    const currentKeySig = keySig(); // ← tracked here, used below
+
     if (!steps.length) {
       props.onSelectionChange([]);
       props.onNotationChange([]);
       return;
     }
 
-    const tonic = getFrequencyFromName(pitch());
     const resolved = resolveProgression(steps, tonic);
 
     props.onSelectionChange(
@@ -64,7 +70,10 @@ const Progression: Component<ProgressionProps> = (props) => {
     props.onNotationChange(
       resolved.map((r, i) => ({
         chords: [r.intervals.map((int) => r.tonicFreq * Math.pow(2, int / 12))],
+        // Only the first bar carries time signature and key signature —
+        // VexFlow only needs them declared once per system.
         timeSignature: i === 0 ? `${r.beatsPerBar ?? 4}/4` : undefined,
+        keySignature: i === 0 ? currentKeySig : undefined,
         bars: r.bars,
       }))
     );
@@ -99,11 +108,9 @@ const Progression: Component<ProgressionProps> = (props) => {
       for (const r of resolved) {
         const msPerBeat = 60000 / currentBpm;
         const msPerBar = msPerBeat * (r.beatsPerBar ?? 4);
-        // Each hit lasts one bar divided by hitsPerBar
         const hitMs = msPerBar / r.hitsPerBar;
         const hitSeconds = hitMs / 1000;
         const freqs = r.intervals.map((i) => r.tonicFreq * Math.pow(2, i / 12));
-        // Total hits = bars × hitsPerBar (4 bars × 1 hit/bar = 4 hits)
         const totalHits = r.bars * r.hitsPerBar;
 
         for (let h = 0; h < totalHits; h++) {
@@ -123,8 +130,6 @@ const Progression: Component<ProgressionProps> = (props) => {
     const token = { cancelled: false };
     activeToken = token;
 
-    // start() once to set isPlaying — subsequent updates use updateFrequencies()
-    // to avoid stop/start cycling in PlaybackContext
     playback.start({ type: "instant", frequencies: sequence[0].freqs });
 
     let idx = 1;
@@ -172,6 +177,7 @@ const Progression: Component<ProgressionProps> = (props) => {
         repeats={repeats()} onRepeatsChange={setRepeats}
         waveform={waveform()} onWaveformChange={setWaveform}
         bpm={bpm()} onBpmChange={setBpm}
+        keySig={keySig()} onKeySigChange={setKeySig}
       />
 
       <Button

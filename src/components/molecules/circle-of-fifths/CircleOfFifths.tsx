@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createSignal, createMemo } from "solid-js";
 import { CIRCLE_OF_FIFTHS, KeyInfo } from "../../../lib/cheat-sheets";
 import Field from "../../atoms/field/Field";
 import Label from "../../atoms/label/Label";
@@ -45,13 +45,20 @@ function accidentalLabel(key: KeyInfo): string {
   return `${key.accidentals} ${sym}${key.accidentals > 1 ? "s" : ""}`;
 }
 
+function normalizeKeyName(key: string) {
+  return key.replace("♭", "b").replace("♯", "#");
+}
+
 export default function CircleOfFifths() {
-  const [selected, setSelected] = createSignal<string | null>("C");
+  const [selected, setSelected] = createSignal<string>("C");
   const [hovered, setHovered] = createSignal<string | null>(null);
 
-  const selectedKey = () =>
-    CIRCLE_OF_FIFTHS.find((k) => k.name === (hovered() || selected())) ?? CIRCLE_OF_FIFTHS[0];
+  const displayedKey = createMemo(() =>
+    CIRCLE_OF_FIFTHS.find((k) => normalizeKeyName(k.name) === (hovered() || selected())) ?? CIRCLE_OF_FIFTHS[0]
+  );
 
+  hovered();
+  selected();
   return (
     <div class="circle-of-fifths">
       <svg
@@ -65,16 +72,17 @@ export default function CircleOfFifths() {
         {CIRCLE_OF_FIFTHS.map((key, i) => {
           const startAngle = key.angle;
           const endAngle = key.angle + 30;
-          const isSelected = selected() === key.name;
-          const isHovered = hovered() === key.name;
+          const normalizedName = normalizeKeyName(key.name);
+          const isSelected = selected() === normalizedName;
+          const isHovered = hovered() === normalizedName;
           return (
             <path
               class={`circle-of-fifths__wedge${isSelected ? " circle-of-fifths__wedge--selected" : ""}${isHovered ? " circle-of-fifths__wedge--hovered" : ""}`}
               d={wedgePath(CX, CY, R_MAJOR, R_OUTER, startAngle, endAngle)}
               tabIndex={0}
               aria-label={key.major}
-              onClick={() => setSelected(key.name)}
-              onMouseEnter={() => setHovered(key.name)}
+              onClick={() => setSelected(normalizeKeyName(key.name))}
+              onMouseEnter={() => setHovered(normalizeKeyName(key.name))}
               onMouseLeave={() => setHovered(null)}
             />
           );
@@ -118,10 +126,10 @@ export default function CircleOfFifths() {
       <Field>
         <Label>Selected Key</Label>
         <div class="circle-of-fifths__info">
-          <span class="circle-of-fifths__key-name">{selectedKey().major}</span>
+          <span class="circle-of-fifths__key-name">{displayedKey().major}</span>
           <span class="circle-of-fifths__sep">/</span>
-          <span class="circle-of-fifths__minor-name">{selectedKey().minor}</span>
-          <span class="circle-of-fifths__accidentals">{accidentalLabel(selectedKey())}</span>
+          <span class="circle-of-fifths__minor-name">{displayedKey().minor}</span>
+          <span class="circle-of-fifths__accidentals">{accidentalLabel(displayedKey())}</span>
         </div>
       </Field>
     </div>

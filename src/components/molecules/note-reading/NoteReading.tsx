@@ -1,3 +1,12 @@
+// src/components/molecules/note-reading/NoteReading.tsx
+//
+// Colours unified with the notation dark theme:
+//   Staff lines  → var(--border)        (#2a2a30)
+//   Note heads   → var(--text)          (#d4d4d8)
+//   Highlighted  → var(--accent)        (#4a6)
+//   Background   → var(--surface)       (#161619)
+//   Labels       → var(--text-muted)    (#71717a)
+
 import { createSignal, For, Show } from "solid-js";
 import {
   TREBLE_LINES,
@@ -11,9 +20,22 @@ import Label from "../../atoms/label/Label";
 import RadioGroup from "../../atoms/radio-group/RadioGroup";
 import "./NoteReading.css";
 
-// ---------------------------------------------------------------------------
-// Minimal SVG staff renderer
-// ---------------------------------------------------------------------------
+// ── SVG staff constants ────────────────────────────────────────────────────
+
+const STAFF_W = 300;
+const STAFF_H = 110;
+const LINE_SPACING = 12;
+const STAFF_TOP = 24;
+const NOTE_R = 7;
+
+// Colour tokens (mirroring tokens.css values — SVG can't use CSS variables
+// in attribute values, only in style properties on supported elements)
+const C_INK    = "var(--text)";       // noteheads, stems, clef
+const C_STAFF  = "var(--border)";     // staff lines
+const C_ACCENT = "var(--accent)";     // highlighted note
+const C_MUTED  = "var(--text-muted)"; // note name labels below staff
+
+// ── Staff SVG component ────────────────────────────────────────────────────
 
 interface StaffProps {
   notes: StaffNote[];
@@ -21,21 +43,14 @@ interface StaffProps {
   highlighted: StaffNote | null;
 }
 
-const STAFF_W = 300;
-const STAFF_H = 110; // Increased height
-const LINE_SPACING = 12;
-const STAFF_TOP = 24; // More top padding
-const NOTE_R = 7;
-
 function Staff(props: Readonly<StaffProps>) {
   const lines = [0, 1, 2, 3, 4].map((i) => STAFF_TOP + i * LINE_SPACING);
   const bottomLine = lines[4];
 
   function noteY(pos: number, onLine: boolean): number {
-    const bottom = bottomLine;
     const step = LINE_SPACING / 2;
     const halfSteps = onLine ? (pos - 1) * 2 : (pos - 1) * 2 + 1;
-    return bottom - halfSteps * step;
+    return bottomLine - halfSteps * step;
   }
 
   return (
@@ -45,30 +60,24 @@ function Staff(props: Readonly<StaffProps>) {
       height={STAFF_H}
       class="note-reading__staff"
       aria-label={`${props.clef} clef staff`}
-      style={{
-        background: "var(--surface)",
-        "border-radius": "var(--radius)",
-        border: "1px solid var(--border)",
-        "margin-bottom": "1rem",
-      }}
     >
       {/* Staff lines */}
       <For each={lines}>
         {(y) => (
           <line
             x1="20" y1={y} x2={STAFF_W - 20} y2={y}
-            stroke="var(--border)"
+            stroke={C_STAFF}
             stroke-width="1"
           />
         )}
       </For>
 
-      {/* Clef symbol */}
+      {/* Clef glyph */}
       <text
         x="28"
         y={props.clef === "treble" ? STAFF_TOP + 36 : STAFF_TOP + 24}
         font-size={props.clef === "treble" ? "44" : "28"}
-        fill="var(--text-muted)"
+        fill={C_INK}
         dominant-baseline="central"
       >
         {props.clef === "treble" ? "𝄞" : "𝄢"}
@@ -79,30 +88,32 @@ function Staff(props: Readonly<StaffProps>) {
         {(note, i) => {
           const x = 80 + i() * 32;
           const y = noteY(note.position, note.onLine);
-          const isHighlighted = () => props.highlighted?.note === note.note;
+          const active = () => props.highlighted?.note === note.note;
+          const colour = () => active() ? C_ACCENT : C_INK;
 
           return (
             <g>
               <ellipse
-                cx={x} cy={y} rx={NOTE_R} ry={NOTE_R * 0.75}
-                fill={isHighlighted() ? "var(--accent)" : "var(--text)"}
-                stroke={isHighlighted() ? "var(--accent)" : "transparent"}
-                stroke-width="2"
+                cx={x} cy={y}
+                rx={NOTE_R} ry={NOTE_R * 0.75}
+                fill={colour()}
+                stroke={colour()}
+                stroke-width="0"
                 style={{ transition: "fill 0.15s ease" }}
               />
               {/* Stem */}
               <line
                 x1={x + NOTE_R} y1={y}
                 x2={x + NOTE_R} y2={y - LINE_SPACING * 2.5}
-                stroke={isHighlighted() ? "var(--accent)" : "var(--text)"}
+                stroke={colour()}
                 stroke-width="1.5"
               />
-              {/* Note name label below */}
+              {/* Note name label below staff */}
               <text
                 x={x} y={STAFF_H - 4}
                 text-anchor="middle"
                 font-size="9"
-                fill={isHighlighted() ? "var(--accent)" : "var(--text-muted)"}
+                fill={active() ? C_ACCENT : C_MUTED}
               >
                 {note.label}
               </text>
@@ -114,9 +125,7 @@ function Staff(props: Readonly<StaffProps>) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Note list sub-table
-// ---------------------------------------------------------------------------
+// ── Note list ──────────────────────────────────────────────────────────────
 
 interface NoteListProps {
   notes: StaffNote[];
@@ -132,7 +141,9 @@ function NoteList(props: Readonly<NoteListProps>) {
           <li>
             <button
               type="button"
-              class={`note-reading__item${props.hovered?.note === note.note ? " note-reading__item--active" : ""}`}
+              class={`note-reading__item${
+                props.hovered?.note === note.note ? " note-reading__item--active" : ""
+              }`}
               onMouseEnter={() => props.onHover(note)}
               onMouseLeave={() => props.onHover(null)}
               onFocus={() => props.onHover(note)}
@@ -151,9 +162,7 @@ function NoteList(props: Readonly<NoteListProps>) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Full section
-// ---------------------------------------------------------------------------
+// ── Clef section ───────────────────────────────────────────────────────────
 
 interface ClefSectionProps {
   label: string;
@@ -168,6 +177,15 @@ function ClefSection(props: Readonly<ClefSectionProps>) {
 
   const notes = () => (view() === "lines" ? props.lines : props.spaces);
 
+  const mnemonicHint = () => {
+    if (view() === "lines") {
+      return props.clef === "treble"
+        ? "Every Good Boy Does Fine"
+        : "Good Boys Do Fine Always";
+    }
+    return props.clef === "treble" ? "Spaces spell FACE" : "All Cows Eat Grass";
+  };
+
   return (
     <section class="note-reading__section" aria-label={props.label}>
       <Field>
@@ -179,38 +197,19 @@ function ClefSection(props: Readonly<ClefSectionProps>) {
             { value: "spaces", label: "Spaces" },
           ]}
           value={view()}
-          onChange={v => setView(v as "lines" | "spaces")}
+          onChange={(v) => setView(v as "lines" | "spaces")}
         />
       </Field>
 
       <Staff notes={notes()} clef={props.clef} highlighted={hovered()} />
-
       <NoteList notes={notes()} onHover={setHovered} hovered={hovered()} />
 
-      {(() => {
-        let mnemonicHint: string;
-        if (view() === "lines") {
-          mnemonicHint = props.clef === "treble"
-            ? "Every Good Boy Does Fine"
-            : "Good Boys Do Fine Always";
-        } else {
-          mnemonicHint = props.clef === "treble"
-            ? "Spaces spell FACE"
-            : "All Cows Eat Grass";
-        }
-        return (
-          <p class="note-reading__mnemonic-hint">
-            {mnemonicHint}
-          </p>
-        );
-      })()}
+      <p class="note-reading__mnemonic-hint">{mnemonicHint()}</p>
     </section>
   );
 }
 
-// ---------------------------------------------------------------------------
-// Export
-// ---------------------------------------------------------------------------
+// ── Export ─────────────────────────────────────────────────────────────────
 
 export default function NoteReading() {
   return (

@@ -7,12 +7,13 @@
 
 ## Overview
 
-A browser-based music theory learning tool with four interactive modes:
+A browser-based music theory learning tool with five interactive modes:
 
 - **Note** — play a single pitch
 - **Scale** — play a scale sequentially, with per-note piano highlight
 - **Chord** — play all chord notes simultaneously
 - **Progression** — play multi-chord sequences with per-chord piano highlight
+- **Cheat Sheets** — interactive tables, graphs and music notation for music theory concepts
 
 Each mode renders:
 1. A control panel (pitch/type selectors, waveform, duration, BPM)
@@ -36,7 +37,8 @@ src/
       preset-progression/
       progression/
       scale/
-    panels/         # (future) TunerPanel, CheatSheetPanel
+      cheat-sheet/      # Cheat Sheets panel (implemented)
+    panels/             # (future) TunerPanel
   context/
     AudioContext.tsx      # Singleton Web Audio API context
     PlaybackContext.tsx   # Playback state machine (isPlaying, currentFrequencies)
@@ -202,7 +204,7 @@ Progression uses `start()` once then calls `updateFrequencies()` on a `setTimeou
 
 ### Organisms
 
-**`ModeShell`** — top-level layout; owns `selectionFrequencies` and `notationBars` signals; routes to panels via `<Switch><Match>`.
+**`ModeShell`** — top-level layout; owns `selectionFrequencies` and `notationBars` signals; routes to panels via `<Switch><Match>`. Includes `"cheat sheets"` as a mode option.
 
 **`Note`** — single note playback; `createEffect` syncs `onSelectionChange` and `onNotationChange` on pitch/duration change.
 
@@ -221,13 +223,20 @@ Progression uses `start()` once then calls `updateFrequencies()` on a `setTimeou
 
 **`CustomProgressionBuilder`** — degree + chord type + bars/beats/hits controls; manages local builder state; emits to parent via `onStepsChange`.
 
+**`CheatSheet`** — interactive reference panel with subcomponents:
+  - `CircleOfFifths.tsx` (interactive SVG)
+  - `KeySignatures.tsx`
+  - `NoteReading.tsx`
+  - `IntervalReference.tsx`
+  - `ScaleDegrees.tsx`
+
 ---
 
 ## Data Flow
 
 ```
 ModeShell
-  ├─ [mode signal] ──► Panel (Note | Scale | Chord | Progression)
+  ├─ [mode signal] ──► Panel (Note | Scale | Chord | Progression | CheatSheet)
   │     ├─ [selection] ──► onSelectionChange ──► selectionFrequencies (ModeShell)
   │     └─ [notation] ──► onNotationChange ──► notationBars (ModeShell)
   │
@@ -276,19 +285,14 @@ Panels call `playback.start()` or `playback.updateFrequencies()` directly; `Mode
 
 ---
 
-## Remaining Roadmap (Phases 6–8)
+## Remaining Roadmap
 
 ### Phase 6 — Instrument Tuner
 - `src/lib/tuner.ts` — `startTuner(onResult)` using `AnalyserNode` + autocorrelation (YIN or McLeod).
 - `src/components/panels/TunerPanel.tsx` — start/stop mic, note + cents display, visual meter.
 - Add `"tuner"` to `ModeShell` options.
 
-### Phase 7 — Cheat Sheets
-- `src/components/panels/CheatSheetPanel.tsx` — tab/accordion container.
-- Subcomponents: `CircleOfFifths.tsx` (interactive SVG), `KeySignatures.tsx`, `NoteReading.tsx`, `IntervalReference.tsx`, `ScaleDegrees.tsx`.
-- Add `"cheat sheets"` to `ModeShell` options.
-
-### Phase 8 — Polish & Accessibility
+### Phase 7 — Polish & Accessibility
 - Keyboard navigation audit (focus rings, tabIndex).
 - ARIA labels on piano keys, mode selectors, play button.
 - `prefers-reduced-motion` disables piano key transitions.

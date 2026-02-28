@@ -1,3 +1,14 @@
+/* src/components/molecules/note-reading/NoteReading.css
+ *
+ * Staff SVG colours mirror the notation dark theme:
+ *   --text          (#d4d4d8) — noteheads, stems, clef glyph, note labels
+ *   --border        (#2a2a30) — staff lines
+ *   --surface       (#161619) — staff background
+ *   --surface-raised (#1e1e22) — section card background
+ *   --accent        (#4a6)    — highlighted note
+ *   --text-muted    (#71717a) — mnemonic text
+ */
+
 .note-reading {
   display: flex;
   flex-direction: column;
@@ -8,47 +19,49 @@
 }
 
 .note-reading__section {
-  background: var(--surface);
+  background: var(--surface-raised);
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  padding: 1.5rem 1rem 1.25rem 1rem;
-  margin-bottom: 0.5rem;
-  box-shadow: none;
+  padding: 1.5rem 1rem 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
 }
 
+/* Staff SVG — same sizing contract as .notation__container svg */
 .note-reading__staff {
   display: block;
   width: 100%;
   max-width: 340px;
-  margin: 0.5rem auto 0.5rem auto;
+  margin: 0.5rem auto;
   background: var(--surface);
   border-radius: var(--radius);
   border: 1px solid var(--border);
 }
 
+/* Interactive note list */
 .note-reading__list {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
   list-style: none;
   padding: 0;
-  margin: 0.25rem 0 0.5rem 0;
+  margin: 0.25rem 0 0.5rem;
 }
 
 .note-reading__item {
   background: var(--surface-raised);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm, 0.25rem);
+  border-radius: var(--radius);
   padding: 0.4em 0.9em;
-  font-size: var(--font-size-sm, 0.95rem);
+  font-size: 0.9rem;
   font-family: var(--sans);
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition: background var(--transition), color var(--transition),
+    border-color var(--transition);
   outline: none;
   display: flex;
   flex-direction: column;
@@ -70,7 +83,7 @@
 }
 
 .note-reading__mnemonic {
-  font-size: var(--font-size-xs, 0.8em);
+  font-size: 0.75em;
   color: var(--text-muted);
   margin-top: 0.1em;
   letter-spacing: 0.01em;
@@ -79,9 +92,8 @@
 .note-reading__mnemonic-hint {
   text-align: center;
   color: var(--text-muted);
-  font-size: var(--font-size-sm, 0.95rem);
-  margin-top: 0.5rem;
-  margin-bottom: 0;
+  font-size: 0.9rem;
   font-style: italic;
   letter-spacing: 0.01em;
+  margin: 0;
 }

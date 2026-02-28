@@ -3,6 +3,7 @@ import { KEY_SIGNATURES } from "../../../lib/cheat-sheets";
 import Field from "../../atoms/field/Field";
 import Label from "../../atoms/label/Label";
 import RadioGroup from "../../atoms/radio-group/RadioGroup";
+import StaffSVG from "../../atoms/StaffSvg";
 import "./KeySignatures.css";
 
 const FILTERS = [
@@ -48,6 +49,7 @@ export default function KeySignatures() {
           <thead>
             <tr>
               <th scope="col">Key</th>
+              <th scope="col">Staff</th>
               <th scope="col">Accidentals</th>
               <th scope="col">Notes</th>
             </tr>
@@ -67,6 +69,9 @@ export default function KeySignatures() {
                 return (
                   <tr class="key-signatures__row">
                     <td class="key-signatures__key">{ks.key}</td>
+                    <td>
+                      <StaffSVG keySignature={ks.key} width={100} height={36} />
+                    </td>
                     <td class="key-signatures__acc">
                       <Show when={accCount > 0} fallback={<span class="key-signatures__none">—</span>}>
                         <span class="key-signatures__acc-symbol">{accSymbol}{accCount}</span>
