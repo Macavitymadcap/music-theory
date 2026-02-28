@@ -1,0 +1,40 @@
+.key-signatures__filter-btn--active,
+.key-signatures__filter-btn:hover {
+  background: var(--surface-raised);
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.key-signatures__key {
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 3ch;
+}
+
+.key-signatures__acc-symbol {
+  font-weight: 600;
+  color: var(--accent);
+  margin-right: var(--space-2, 0.5rem);
+}
+
+.key-signatures__acc-list {
+  color: var(--text-muted);
+  font-size: var(--font-size-xs, 0.75rem);
+}
+
+.key-signatures__none {
+  color: var(--border);
+}
+
+.key-signatures__scale-note {
+  color: var(--text-muted);
+}
+
+.key-signatures__scale-note--accidental {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.key-signatures__dash {
+  color: var(--border);
+}

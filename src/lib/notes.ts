@@ -28,7 +28,7 @@ for (let octave = 0; octave <= 8; octave++) {
     // C0 = MIDI 12, so MIDI = 12 + octave*12 + semitone
     const midi = 12 + octave * 12 + i;
     if (midi <= 12 + 8 * 12 + 11) {
-      NOTE_FREQUENCIES[name] = parseFloat(midiToFrequency(midi).toFixed(2));
+      NOTE_FREQUENCIES[name] = Number.parseFloat(midiToFrequency(midi).toFixed(2));
     }
   }
 }

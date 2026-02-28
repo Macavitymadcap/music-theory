@@ -1,0 +1,87 @@
+.note-reading {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  width: 100%;
+  max-width: 700px;
+  margin-inline: auto;
+}
+
+.note-reading__section {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 1.5rem 1rem 1.25rem 1rem;
+  margin-bottom: 0.5rem;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.note-reading__staff {
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  margin: 0.5rem auto 0.5rem auto;
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.note-reading__list {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0.25rem 0 0.5rem 0;
+}
+
+.note-reading__item {
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm, 0.25rem);
+  padding: 0.4em 0.9em;
+  font-size: var(--font-size-sm, 0.95rem);
+  font-family: var(--sans);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  outline: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1em;
+}
+
+.note-reading__item:hover,
+.note-reading__item:focus,
+.note-reading__item--active {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.note-reading__note-label {
+  font-weight: 600;
+  color: inherit;
+}
+
+.note-reading__mnemonic {
+  font-size: var(--font-size-xs, 0.8em);
+  color: var(--text-muted);
+  margin-top: 0.1em;
+  letter-spacing: 0.01em;
+}
+
+.note-reading__mnemonic-hint {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm, 0.95rem);
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  font-style: italic;
+  letter-spacing: 0.01em;
+}
