@@ -25,7 +25,7 @@ interface PlayOptions {
  */
 export function durationToSeconds(value: number, bpm: number, timeSignature: TimeSignature): number {
   const secondsPerBeat = 60 / bpm;
-  const beatsForNote = value * timeSignature;
+  const beatsForNote = value *  4 * timeSignature;
   return beatsForNote * secondsPerBeat;
 }
 
