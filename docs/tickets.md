@@ -6,21 +6,21 @@
 
 ### Tasks
 
-- [ ] Create `src/lib/tuner.ts`:
+- [x] Create `src/lib/tuner.ts`:
   - `startTuner(onResult: (note: string, cents: number, freq: number) => void): () => void`
   - Requests microphone via `navigator.mediaDevices.getUserMedia`.
   - Uses `AnalyserNode` + autocorrelation (YIN or McLeod Pitch Method) for pitch detection.
   - Returns a cleanup/stop function.
-- [ ] Create `src/components/panels/TunerPanel.tsx`:
+- [x] Create `src/components/panels/Tuner.tsx`:
   - Start/stop mic button.
   - Large display: detected note name, octave.
   - Cents deviation meter (−50 to +50 range, visual indicator).
   - Target frequency display.
-- [ ] Add "tuner" to the mode list in `ModeShell`.
+- [x] Add "tuner" to the mode list in `ModeShell`.
 
 **Tests**
-- [ ] `tuner.ts` unit tests: autocorrelation function returns correct frequency for synthetic sine wave data arrays.
-- [ ] Component renders correctly in stopped state; shows permission prompt state.
+- [x] `tuner.ts` unit tests: autocorrelation function returns correct frequency for synthetic sine wave data arrays.
+- [x] Component renders correctly in stopped state; shows permission prompt state.
 
 ### Acceptance Criteria
 - Tuner detects pitch in real time with < 200ms latency.

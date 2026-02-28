@@ -94,8 +94,8 @@ describe("CIRCLE_OF_FIFTHS", () => {
 // ---------------------------------------------------------------------------
 
 describe("KEY_SIGNATURES", () => {
-  it("has exactly 12 entries", () => {
-    expect(KEY_SIGNATURES).toHaveLength(12);
+  it("has exactly 15 entries", () => {
+    expect(KEY_SIGNATURES).toHaveLength(15);
   });
 
   it("each has a key string and a 7-note scale", () => {
