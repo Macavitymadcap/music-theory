@@ -284,17 +284,3 @@ Panels call `playback.start()` or `playback.updateFrequencies()` directly; `Mode
 - `vite.config.ts` sets `base: "/music-theory/"` for correct asset URLs on GitHub Pages.
 
 ---
-
-## Remaining Roadmap
-
-### Phase 6 — Instrument Tuner
-- `src/lib/tuner.ts` — `startTuner(onResult)` using `AnalyserNode` + autocorrelation (YIN or McLeod).
-- `src/components/panels/TunerPanel.tsx` — start/stop mic, note + cents display, visual meter.
-- Add `"tuner"` to `ModeShell` options.
-
-### Phase 7 — Polish & Accessibility
-- Keyboard navigation audit (focus rings, tabIndex).
-- ARIA labels on piano keys, mode selectors, play button.
-- `prefers-reduced-motion` disables piano key transitions.
-- Responsive layout (single-column mobile).
-- Lighthouse / axe audit.
