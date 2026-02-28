@@ -218,17 +218,17 @@
 
 ### Tasks
 
-- [ ] Create `src/components/panels/CheatSheetPanel.tsx` — tab or accordion container.
-- [ ] `CircleOfFifths.tsx` — interactive SVG circle of fifths. Clicking a key highlights related scales/chords (stretch goal: links to setting that key in playback modes).
-- [ ] `KeySignatures.tsx` — table of major/minor keys with their sharps/flats.
-- [ ] `NoteReading.tsx` — treble and bass clef note positions, ledger lines.
-- [ ] `IntervalReference.tsx` — interval names, semitone counts, characteristic sound descriptions.
-- [ ] `ScaleDegrees.tsx` — table of scale degree names (tonic, supertonic, etc.) and their roles.
-- [ ] Add "cheat sheets" to the mode list.
+- [x] Create `src/components/panels/CheatSheetPanel.tsx` — tab or accordion container.
+- [x] `CircleOfFifths.tsx` — interactive SVG circle of fifths. Clicking a key highlights related scales/chords (stretch goal: links to setting that key in playback modes).
+- [x] `KeySignatures.tsx` — table of major/minor keys with their sharps/flats.
+- [x] `NoteReading.tsx` — treble and bass clef note positions, ledger lines.
+- [x] `IntervalReference.tsx` — interval names, semitone counts, characteristic sound descriptions.
+- [x] `ScaleDegrees.tsx` — table of scale degree names (tonic, supertonic, etc.) and their roles.
+- [x] Add "cheat sheets" to the mode list.
 
 **Tests**
-- [ ] Each cheat sheet component renders without error.
-- [ ] Circle of fifths SVG contains expected number of segments (12).
+- [x] Each cheat sheet component renders without error.
+- [x] Circle of fifths SVG contains expected number of segments (12).
 
 ### Acceptance Criteria
 - All cheat sheet tabs render and are readable on mobile.
