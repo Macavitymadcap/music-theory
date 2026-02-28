@@ -16,6 +16,7 @@ import DurationSelect from "../../molecules/DurationSelect";
 import PitchSelect from "../../molecules/PitchSelect";
 import WaveformSelect from "../../molecules/WaveformSelect";
 import type { NotationBar } from "../../../lib/notation";
+import KeySignatureSelect from "../../molecules/KeySignatureSelect";
 
 function durationToVex(d: Duration): string {
   if (d >= 1) return "w";
@@ -40,6 +41,7 @@ const Note: Component<NotePanelProps> = (props) => {
   const [waveform, setWaveform] = createSignal<WaveformType>("sine");
   const [duration, setDuration] = createSignal<Duration>(DURATIONS.CROTCHET);
   const [bpm, setBpm] = createSignal(120);
+  const [keySig, setKeySig] = createSignal("C");
   
 
   createEffect(() => {
@@ -49,6 +51,7 @@ const Note: Component<NotePanelProps> = (props) => {
       props.onNotationChange([{
         chords: [[freq]],
         timeSignature: "4/4",
+        keySignature: keySig(),
         forceDuration: durationToVex(duration()),
       }]);
     }
@@ -91,6 +94,7 @@ const Note: Component<NotePanelProps> = (props) => {
       <Row>
         <DurationSelect id="note-duration" value={duration()} onChange={setDuration} />
         <BpmInput id="note-bpm" value={bpm()} onChange={setBpm} />
+        <KeySignatureSelect id="note-key-sig" value={keySig()} onChange={setKeySig} />
       </Row>
       <Button onClick={play} variant={playback.isPlaying() ? "danger" : "primary"}>
         {playback.isPlaying() ? "■ stop" : "▶ play"}

@@ -20,6 +20,7 @@ import BpmInput from "../../molecules/BpmInput";
 import DurationSelect from "../../molecules/DurationSelect";
 import WaveformSelect from "../../molecules/WaveformSelect";
 import type { NotationBar } from "../../../lib/notation";
+import KeySignatureSelect from "../../molecules/KeySignatureSelect";
 
 interface ScaleProps {
   onSelectionChange: (frequencies: number[]) => void;
@@ -51,6 +52,7 @@ const Scale: Component<ScaleProps> = (props) => {
   const [waveform, setWaveform] = createSignal<WaveformType>("sine");
   const [duration, setDuration] = createSignal<Duration>(DURATIONS.CROTCHET);
   const [bpm, setBpm] = createSignal(120);
+  const [keySig, setKeySig] = createSignal("C");
 
   // Update both selection frequencies and notation whenever pitch, scale, or duration changes
   createEffect(() => {
@@ -64,6 +66,7 @@ const Scale: Component<ScaleProps> = (props) => {
       props.onNotationChange([{
         chords: freqs.map((f) => [f]),
         timeSignature: "4/4",
+        keySignature: keySig(),
         noteCount: freqs.length,
         forceDuration: vexDur,
       }]);
@@ -102,19 +105,20 @@ const Scale: Component<ScaleProps> = (props) => {
       <Row>
         <PitchSelect id="scale-pitch" value={pitch()} onChange={setPitch} />
         <WaveformSelect id="scale-waveform" value={waveform()} onChange={setWaveform} />
+        <Field>
+          <Label for="scale-type">scale</Label>
+          <Select
+            id="scale-type"
+            value={scaleName()}
+            onChange={(v) => setScaleName(v as ScaleName)}
+            groups={SCALE_GROUPS_FOR_SELECT}
+          />
+        </Field>
       </Row>
-      <Field>
-        <Label for="scale-type">scale</Label>
-        <Select
-          id="scale-type"
-          value={scaleName()}
-          onChange={(v) => setScaleName(v as ScaleName)}
-          groups={SCALE_GROUPS_FOR_SELECT}
-        />
-      </Field>
       <Row>
         <DurationSelect id="scale-duration" value={duration()} onChange={setDuration} />
         <BpmInput id="scale-bpm" value={bpm()} onChange={setBpm} />
+      <KeySignatureSelect id="scale-key-sig" value={keySig()} onChange={setKeySig} />
       </Row>
       <Button onClick={play} variant={playback.isPlaying() ? "danger" : "primary"}>
         {playback.isPlaying() ? "■ stop" : "▶ play"}

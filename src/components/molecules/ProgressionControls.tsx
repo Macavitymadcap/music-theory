@@ -7,6 +7,7 @@ import type { WaveformType } from "../../lib/web-audio";
 import BpmInput from "./BpmInput";
 import PitchSelect from "./PitchSelect";
 import WaveformSelect from "./WaveformSelect";
+import KeySignatureSelect from "./KeySignatureSelect";
 
 interface ProgressionControlsProps {
   pitch: string;
@@ -17,6 +18,8 @@ interface ProgressionControlsProps {
   onWaveformChange: (v: WaveformType) => void;
   bpm: number;
   onBpmChange: (v: number) => void;
+  keySig: string;
+  onKeySigChange: (v: string) => void;
 }
 
 const ProgressionControls: Component<ProgressionControlsProps> = (props) => (
@@ -27,6 +30,7 @@ const ProgressionControls: Component<ProgressionControlsProps> = (props) => (
       <BpmInput id="prog-bpm" value={props.bpm} onChange={props.onBpmChange} />
     </Row>
     <Row>
+      <KeySignatureSelect id="prog-key-sig" value={props.keySig} onChange={props.onKeySigChange} />
       <Field>
         <Label for="prog-repeats">repeats</Label>
         <NumberInput id="prog-repeats" value={props.repeats} onChange={props.onRepeatsChange} min={1} max={8} />

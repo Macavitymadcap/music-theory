@@ -24,6 +24,7 @@ import DurationSelect from "../../molecules/DurationSelect";
 import PitchSelect from "../../molecules/PitchSelect";
 import WaveformSelect from "../../molecules/WaveformSelect";
 import { NotationBar } from "../../../lib/notation";
+import KeySignatureSelect from "../../molecules/KeySignatureSelect";
 
 
 // Map Duration value to VexFlow duration string
@@ -56,6 +57,7 @@ const Chord: Component<ChordProps> = (props) => {
   const [waveform, setWaveform] = createSignal<WaveformType>("sine");
   const [duration, setDuration] = createSignal<Duration>(DURATIONS.CROTCHET);
   const [bpm, setBpm] = createSignal(120);
+  const [keySig, setKeySig] = createSignal("C");
 
   createEffect(() => {
     const tonic = getFrequencyFromName(pitch());
@@ -66,6 +68,7 @@ const Chord: Component<ChordProps> = (props) => {
       props.onNotationChange([{
         chords: [freqs],
         timeSignature: "4/4",
+        keySignature: keySig(),
         forceDuration: durationToVex(duration()),
       }]);
     }
@@ -100,19 +103,20 @@ const Chord: Component<ChordProps> = (props) => {
       <Row>
         <PitchSelect id="chord-pitch" value={pitch()} onChange={setPitch} />
         <WaveformSelect id="chord-waveform" value={waveform()} onChange={setWaveform} />
+        <Field>
+          <Label for="chord-type">chord</Label>
+          <Select
+            id="chord-type"
+            value={chordType()}
+            onChange={(v) => setChordType(v as ChordType)}
+            groups={CHORD_GROUPS_FOR_SELECT}
+          />
+        </Field>
       </Row>
-      <Field>
-        <Label for="chord-type">chord</Label>
-        <Select
-          id="chord-type"
-          value={chordType()}
-          onChange={(v) => setChordType(v as ChordType)}
-          groups={CHORD_GROUPS_FOR_SELECT}
-        />
-      </Field>
       <Row>
         <DurationSelect id="chord-duration" value={duration()} onChange={setDuration} />
         <BpmInput id="chord-bpm" value={bpm()} onChange={setBpm} />
+        <KeySignatureSelect id="chord-key-sig" value={keySig()} onChange={setKeySig} />
       </Row>
       <Button onClick={play} variant={playback.isPlaying() ? "danger" : "primary"}>
         {playback.isPlaying() ? "■ stop" : "▶ play"}
