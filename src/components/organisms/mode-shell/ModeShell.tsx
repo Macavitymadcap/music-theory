@@ -12,15 +12,17 @@ import { usePlayback } from "../../../context/PlaybackContext";
 import type { NotationBar } from "../../../lib/notation";
 import "./ModeShell.css";
 import CheatSheet from "../cheat-sheet/CheatSheet";
+import Tuner from "../tuner/Tuner";
 
-type Mode = "note" | "scale" | "chord" | "progression" | "cheetsheats";
+type Mode = "note" | "scale" | "chord" | "progression" | "cheetsheats" | "tuner";
 
 const MODE_OPTIONS = [
   { value: "note", label: "note" },
   { value: "scale", label: "scale" },
   { value: "chord", label: "chord" },
   { value: "progression", label: "progression" },
-  { value: "cheetsheats", label: "cheat sheets" }
+  { value: "cheetsheats", label: "cheat sheets" },
+  { value: "tuner", label:"tuner" }
 ];
 
 const ModeShell: Component = () => {
@@ -36,6 +38,8 @@ const ModeShell: Component = () => {
     // For note, scale, chord: always use scaleBars (set by panel's onNotationChange)
     return scaleBars();
   });
+
+  const hasNotationAndKeyboard = () => mode() !== "cheetsheats" && mode() !== "tuner"
 
   return (
     <div class="mode-shell">
@@ -82,9 +86,12 @@ const ModeShell: Component = () => {
         <Match when={mode() === "cheetsheats"}>
           <CheatSheet />
         </Match>
+        <Match when={mode() === "tuner"}>
+          <Tuner />
+        </Match>
       </Switch>
 
-      {mode() !== "cheetsheats" &&(
+      {hasNotationAndKeyboard()  &&(
         <>
           <Notation bars={notationBars()} label="notation" />
           <PianoKeyboard

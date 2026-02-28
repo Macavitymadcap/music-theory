@@ -12,7 +12,8 @@ An interactive browser-based music theory tool. Explore notes, scales, chords an
 - **Scale mode** — choose from 40+ scales (major modes, pentatonic, blues, jazz, Eastern and more); plays each note sequentially with a travelling highlight on the keyboard.
 - **Chord mode** — 60+ chord voicings (triads, sevenths, extended, altered, inversions, quartal); all notes highlight simultaneously.
 - **Progression mode** — 12 curated presets (pop, blues, jazz, modal) plus a custom builder; each chord highlights as it plays.
-- **VexFlow notation** — live staff notation for all four modes; progressions display one bar per chord.
+- **Tuner mode** — real-time microphone-based pitch detection; displays detected note, octave, frequency, and a ±50 ¢ deviation meter.
+- **VexFlow notation** — live staff notation for all four playback modes; progressions display one bar per chord.
 - **Reactive piano keyboard** — range adjusts to the selection; highlights track playback in real time.
 - **Interactive Cheat Sheets** - the Circle of Fifths, reading sheet music, intervals and other concepts explained with interactive elements.
 
@@ -106,6 +107,10 @@ src/
       preset-progression/
       progression/
       scale/
+    panels/           # Self-contained panels that manage their own audio
+      Tuner.tsx
+      Tuner.css
+      Tuner.test.tsx
   context/
     AudioContext.tsx      # Web Audio API singleton
     PlaybackContext.tsx   # Playback state machine
@@ -119,6 +124,8 @@ src/
     notes.ts
     progressions.ts
     scales.ts
+    tuner.ts              # Pitch detection (McLeod Pitch Method)
+    tuner.test.ts
     web-audio.ts
   styles/
     tokens.css            # All CSS custom properties
@@ -138,6 +145,7 @@ src/
   - `AudioContext` — manages a single `AudioContext` instance (lazy init, auto-resume, closes on cleanup).
   - `PlaybackContext` — drives `isPlaying` and `currentFrequencies` signals consumed by `ModeShell` and `PianoKeyboard`.
 - `src/components/` is split into atoms → molecules → organisms following atomic design. Organisms use contexts; atoms must not.
+- `src/components/panels/` houses panels that manage their own Web Audio lifecycle independently of `PlaybackContext` (currently: `Tuner`).
 
 ### Piano keyboard range vs. highlight
 
@@ -155,6 +163,20 @@ All audio is scheduled upfront using `scheduleChordAtTime`. Visual highlight is 
 ### Notation rendering
 
 `Notation.tsx` defers VexFlow rendering to the next animation frame via `requestAnimationFrame`. This ensures the container has its final dimensions before `clientWidth` is read for layout calculations.
+
+### Tuner
+
+`src/lib/tuner.ts` implements the **McLeod Pitch Method (MPM)** — a normalised autocorrelation approach that is stable across varying signal amplitudes:
+
+1. Gate on RMS level — bail out early if the signal is too quiet.
+2. Compute the Normalised Square Difference Function (NSDF) over the time-domain buffer.
+3. Find the first key maximum after the first negative-zero crossing (ignoring the trivial lag-0 peak).
+4. Refine the peak position using parabolic interpolation for sub-sample accuracy.
+5. Convert the refined lag to a frequency: `f = sampleRate / lag`.
+
+`startTuner(onResult, options?)` returns a `Promise<() => void>`. It requests microphone access, wires up an `AnalyserNode`, and polls at 80 ms intervals (configurable). Calling the returned stop function releases the microphone stream and closes its own `AudioContext`.
+
+`Tuner` manages the complete mic lifecycle — it does **not** use `PlaybackContext` or the shared `AudioContext` from `AudioProvider`.
 
 ---
 
@@ -181,6 +203,10 @@ Each organism test:
 2. Calls `stubAudioContext()` in `beforeEach` to install a class-based `AudioContext` mock compatible with `new AudioContext()`.
 3. Uses `vi.useFakeTimers()` where `setTimeout`/`setInterval` is involved.
 4. Calls `cleanup()` in `afterEach`.
+
+`Tuner` tests mock `startTuner` from `src/lib/tuner` so no real browser APIs are required. A `simulateResult` helper drives the `onResult` callback to test the display logic.
+
+`tuner.ts` tests use synthetic `Float32Array` sine-wave buffers and verify pitch detection within ±5 Hz for standard pitches (A3, E4, G4, A4).
 
 ```bash
 bun run test

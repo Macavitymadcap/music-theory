@@ -7,18 +7,21 @@
 
 ## Overview
 
-A browser-based music theory learning tool with five interactive modes:
+A browser-based music theory learning tool with six interactive modes:
 
 - **Note** — play a single pitch
 - **Scale** — play a scale sequentially, with per-note piano highlight
 - **Chord** — play all chord notes simultaneously
 - **Progression** — play multi-chord sequences with per-chord piano highlight
 - **Cheat Sheets** — interactive tables, graphs and music notation for music theory concepts
+- **Tuner** — real-time microphone pitch detection with cents deviation display
 
-Each mode renders:
+Each playback mode (Note/Scale/Chord/Progression) renders:
 1. A control panel (pitch/type selectors, waveform, duration, BPM)
 2. VexFlow musical notation
 3. A reactive piano keyboard that highlights the currently-playing note(s)
+
+The Tuner and Cheat Sheets modes render their own self-contained UI; the notation bar and piano keyboard are idle while they are active.
 
 ---
 
@@ -37,8 +40,11 @@ src/
       preset-progression/
       progression/
       scale/
-      cheat-sheet/      # Cheat Sheets panel (implemented)
-    panels/             # (future) TunerPanel
+      cheat-sheet/
+    panels/         # Self-contained panels that own their own audio lifecycle
+      Tuner.tsx
+      Tuner.css
+      Tuner.test.tsx
   context/
     AudioContext.tsx      # Singleton Web Audio API context
     PlaybackContext.tsx   # Playback state machine (isPlaying, currentFrequencies)
@@ -52,6 +58,8 @@ src/
     notes.ts
     progressions.ts
     scales.ts
+    tuner.ts        # Pitch detection (McLeod Pitch Method) + tuner lifecycle
+    tuner.test.ts
     web-audio.ts
   styles/
     tokens.css      # All CSS custom properties (:root)
@@ -73,6 +81,8 @@ src/
 4. **CSS tokens only.** All colour and spacing values come from `tokens.css` custom properties. No hardcoded values in component CSS files.
 
 5. **Separation of range vs. highlight in `PianoKeyboard`.** `rangeFrequencies` (stable set) drives the key range; `highlightedFrequencies` (changes during playback) drives active key styling. This prevents the keyboard from re-measuring during playback.
+
+6. **Panels that own their own audio** (e.g. `Tuner`) live in `src/components/panels/`. They create and close their own `AudioContext` independently of `AudioProvider` and do not interact with `PlaybackContext`.
 
 ---
 
@@ -146,6 +156,36 @@ Progression uses `start()` once then calls `updateFrequencies()` on a `setTimeou
 - `resolveProgression(steps, tonicHz)` → `ResolvedStep[]` — maps semitone offsets to concrete frequencies.
 - `ProgressionStep` — `{ label, semitones, chordType, bars, hitsPerBar, beatsPerBar }`.
 
+### `tuner.ts`
+
+Microphone pitch detection using the **McLeod Pitch Method (MPM)**.
+
+```ts
+// Types
+interface TunerResult { note: string; octave: number; cents: number; frequency: number; targetFrequency: number; }
+interface TunerOptions { intervalMs?: number; minRms?: number; fftSize?: number; }
+
+// Pure helpers (all unit-tested with synthetic Float32Array data)
+frequencyToMidiExact(hz)        // Hz → exact MIDI note number (float)
+midiToFrequency(midi)           // MIDI note → equal-temperament Hz
+analyseFrequency(hz)            // Hz → { note, octave, cents, targetFrequency }
+computeNsdf(buffer)             // Float32Array → normalised NSDF array
+detectPitch(buffer, sampleRate, minRms?)  // Float32Array → Hz | null
+
+// Async lifecycle
+startTuner(onResult, options?) → Promise<() => void>
+```
+
+**Algorithm:**
+1. Gate on RMS — return `null` if signal is below `minRms`.
+2. Compute the Normalised Square Difference Function (NSDF).
+3. Find the first key maximum after the first negative-zero crossing.
+4. Accept the peak if it exceeds 0.8 (strong candidate) or is the tallest overall peak above 0.2.
+5. Refine the lag using parabolic interpolation for sub-sample accuracy.
+6. Convert to frequency: `f = sampleRate / refinedLag`.
+
+`startTuner` calls `navigator.mediaDevices.getUserMedia`, creates its own `AudioContext` and `AnalyserNode`, and polls at `intervalMs` (default 80 ms). The returned stop function clears the interval, disconnects the source, stops all mic tracks, and closes the `AudioContext`.
+
 ### `web-audio.ts`
 - `durationToSeconds(value, bpm, timeSignature)` — converts a note duration fraction to wall-clock seconds.
 - `applyEnvelope(gainNode, startTime, duration)` — simple ADSR envelope (attack 25%, decay 25%, sustain 0.2, release 50%).
@@ -204,7 +244,7 @@ Progression uses `start()` once then calls `updateFrequencies()` on a `setTimeou
 
 ### Organisms
 
-**`ModeShell`** — top-level layout; owns `selectionFrequencies` and `notationBars` signals; routes to panels via `<Switch><Match>`. Includes `"cheat sheets"` as a mode option.
+**`ModeShell`** — top-level layout; owns `selectionFrequencies` and `notationBars` signals; routes to panels via `<Switch><Match>`. Includes `"cheat sheets"` and `"tuner"` as mode options. When mode is `"tuner"`, `ModeShell` renders `<Tuner />` directly without passing `onSelectionChange` or `onNotationChange` — the piano keyboard and notation bar remain idle.
 
 **`Note`** — single note playback; `createEffect` syncs `onSelectionChange` and `onNotationChange` on pitch/duration change.
 
@@ -230,21 +270,31 @@ Progression uses `start()` once then calls `updateFrequencies()` on a `setTimeou
   - `IntervalReference.tsx`
   - `ScaleDegrees.tsx`
 
+### Panels
+
+**`Tuner`** (`src/components/panels/Tuner.tsx`) — self-contained tuner UI:
+  - Tracks `permission` state: `idle | requesting | granted | denied | error`.
+  - Calls `startTuner()` from `src/lib/tuner` on start; stores and calls the returned stop function on stop/unmount (`onCleanup`).
+  - Displays detected note name + octave in large mono type; frequency and target frequency in small mono type; ±50 ¢ deviation meter with a sliding indicator.
+  - Indicator and note turn green (`--color-success`) when |cents| ≤ 5.
+  - Uses only `Button` from atoms; all other layout is panel-specific CSS using `tokens.css` properties.
+
 ---
 
 ## Data Flow
 
 ```
 ModeShell
-  ├─ [mode signal] ──► Panel (Note | Scale | Chord | Progression | CheatSheet)
-  │     ├─ [selection] ──► onSelectionChange ──► selectionFrequencies (ModeShell)
-  │     └─ [notation] ──► onNotationChange ──► notationBars (ModeShell)
+  ├─ [mode signal] ──► Panel (Note | Scale | Chord | Progression | CheatSheet | Tuner)
+  │     ├─ [selection] ──► onSelectionChange ──► selectionFrequencies (ModeShell)  [playback modes only]
+  │     └─ [notation] ──► onNotationChange ──► notationBars (ModeShell)            [playback modes only]
   │
   ├─ PlaybackContext.currentFrequencies ──► PianoKeyboard.highlightedFrequencies
   └─ selectionFrequencies ──► PianoKeyboard.rangeFrequencies
-```
 
-Panels call `playback.start()` or `playback.updateFrequencies()` directly; `ModeShell` reads `currentFrequencies` from context to pass to `PianoKeyboard`.
+Tuner (standalone, no PlaybackContext interaction)
+  └─ startTuner() ──► AnalyserNode ──► detectPitch() ──► onResult ──► SolidJS signals ──► UI
+```
 
 ---
 
@@ -262,6 +312,8 @@ Panels call `playback.start()` or `playback.updateFrequencies()` directly; `Mode
   });
   ```
 - **`TestProviders`** — wraps `AudioProvider` + `PlaybackProvider`; use for any organism test.
+- **`Tuner` tests** mock `startTuner` with a function that captures the `onResult` callback. A `simulateResult` helper drives the callback so display logic can be tested without any browser API. The mock's returned stop function is a `vi.fn()` to assert cleanup behaviour.
+- **`tuner.ts` tests** use synthetic `Float32Array` sine waves to verify `computeNsdf` peak positions and `detectPitch` accuracy (within ±5 Hz for A3, E4, G4, A4).
 - All test files use `afterEach(cleanup)`.
 
 ---
@@ -282,19 +334,3 @@ Panels call `playback.start()` or `playback.updateFrequencies()` directly; `Mode
 - `bun run test:watch` — Vitest watch mode.
 - GitHub Actions workflow (`.github/workflows/deploy-github-pages.yml`) builds on push to `main` and deploys `dist/` to GitHub Pages. A `.nojekyll` file is added post-build to prevent Jekyll interference with Vite's asset paths.
 - `vite.config.ts` sets `base: "/music-theory/"` for correct asset URLs on GitHub Pages.
-
----
-
-## Remaining Roadmap
-
-### Phase 6 — Instrument Tuner
-- `src/lib/tuner.ts` — `startTuner(onResult)` using `AnalyserNode` + autocorrelation (YIN or McLeod).
-- `src/components/panels/TunerPanel.tsx` — start/stop mic, note + cents display, visual meter.
-- Add `"tuner"` to `ModeShell` options.
-
-### Phase 7 — Polish & Accessibility
-- Keyboard navigation audit (focus rings, tabIndex).
-- ARIA labels on piano keys, mode selectors, play button.
-- `prefers-reduced-motion` disables piano key transitions.
-- Responsive layout (single-column mobile).
-- Lighthouse / axe audit.
