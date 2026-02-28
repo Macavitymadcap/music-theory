@@ -84,12 +84,15 @@ const ModeShell: Component = () => {
         </Match>
       </Switch>
 
-      <Notation bars={notationBars()} label="notation" />
-
-      <PianoKeyboard
-        highlightedFrequencies={playback.currentFrequencies()}
-        rangeFrequencies={selectionFrequencies()}
-      />
+      {mode() !== "cheetsheats" &&(
+        <>
+          <Notation bars={notationBars()} label="notation" />
+          <PianoKeyboard
+            highlightedFrequencies={playback.currentFrequencies()}
+            rangeFrequencies={selectionFrequencies()}
+          />
+        </>
+      )}
     </div>
   );
 };

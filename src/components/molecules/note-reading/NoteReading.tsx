@@ -22,9 +22,9 @@ interface StaffProps {
 }
 
 const STAFF_W = 300;
-const STAFF_H = 90;
+const STAFF_H = 110; // Increased height
 const LINE_SPACING = 12;
-const STAFF_TOP = 14;
+const STAFF_TOP = 24; // More top padding
 const NOTE_R = 7;
 
 function Staff(props: Readonly<StaffProps>) {
