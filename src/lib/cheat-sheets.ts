@@ -68,6 +68,9 @@ export const KEY_SIGNATURES: KeySignature[] = [
   { key: "Eb", sharps: [],                                       flats: ["Bb","Eb","Ab"],                          scale: ["Eb","F","G","Ab","Bb","C","D"] },
   { key: "Ab", sharps: [],                                       flats: ["Bb","Eb","Ab","Db"],                     scale: ["Ab","Bb","C","Db","Eb","F","G"] },
   { key: "Db", sharps: [],                                       flats: ["Bb","Eb","Ab","Db","Gb"],                scale: ["Db","Eb","F","Gb","Ab","Bb","C"] },
+  { key: "C#", sharps: [],                                       flats: ["Bb","Eb","Ab","Db","Gb","Cb"],            scale: ["C#","D#","E#","F#","G#","A#","B#"] },
+  { key: "Gb", sharps: [],                                       flats: ["Bb","Eb","Ab","Db","Gb","Cb"],            scale: ["Gb","Ab","Bb","Cb","Db","Eb","F"] },
+  { key: "Cb", sharps: [],                                       flats: ["Bb","Eb","Ab","Db","Gb","Cb"],            scale: ["Cb","Db","Eb","F","Gb","Ab","Bb"] },
 ];
 
 // ---------------------------------------------------------------------------
